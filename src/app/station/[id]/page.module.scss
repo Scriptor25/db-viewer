@@ -1,0 +1,19 @@
+.container {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: stretch;
+
+  padding: 1rem;
+}
+
+.heading {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.map {
+  width: auto;
+  height: 30rem;
+}

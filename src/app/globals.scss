@@ -1,0 +1,64 @@
+:root {
+  --outline-color: #ccc;
+  --border-color: #ddd;
+  --background-color: #eee;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+button, .button {
+  background: none;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+
+  &:hover, &:focus, &:active, &.selection {
+    background: var(--background-color);
+    outline: 1px solid var(--outline-color);
+  }
+
+  &:disabled {
+    background: var(--background-color);
+    outline: none;
+  }
+}
+
+label {
+  &:has(input) {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+  }
+
+  &:has(input[type=button]),
+  &:has(input[type=checkbox]),
+  &:has(input[type=color]),
+  &:has(input[type=date]),
+  &:has(input[type=datetime-local]),
+  &:has(input[type=file]),
+  &:has(input[type=image]),
+  &:has(input[type=radio]),
+  &:has(input[type=range]),
+  &:has(input[type=time]) {
+    cursor: pointer;
+  }
+}
+
+a {
+  color: #ff0000;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+
+  &:hover, &:focus, &:active {
+    text-decoration: underline;
+  }
+}

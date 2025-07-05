@@ -104,12 +104,12 @@ export function FilterView(params: Params) {
             <input type="text"
                    enterKeyHint="search"
                    placeholder="filter station by name"
-                   value={query}
+                   value={query ?? ""}
                    onChange={event => setQuery(event.target.value)}/>
             <fieldset className={styles.group}>
                 <legend>Federal States</legend>
                 {STATES.map(([value, label]) => (
-                    <label key={value} className={styles.label}>
+                    <label key={value}>
                         <input type="checkbox"
                                checked={states.includes(value)}
                                onChange={event => setStateChecked(value, event.target.checked)}/>
@@ -120,7 +120,7 @@ export function FilterView(params: Params) {
             <fieldset className={styles.group}>
                 <legend>Attributes</legend>
                 {ATTRIBUTES.map(([value, label]) => (
-                    <label key={value} className={styles.label}>
+                    <label key={value}>
                         <input type="checkbox"
                                checked={attributes.includes(value)}
                                onChange={event => setAttributeChecked(value, event.target.checked)}/>
@@ -128,7 +128,7 @@ export function FilterView(params: Params) {
                     </label>
                 ))}
             </fieldset>
-            <label className={styles.label}>
+            <label>
                 <input type="checkbox"
                        checked={mode === "or"}
                        onChange={event => setMode(event.target.checked ? "or" : "and")}/>

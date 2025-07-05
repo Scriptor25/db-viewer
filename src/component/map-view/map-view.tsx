@@ -55,7 +55,6 @@ export function MapView({center, bounds, zoom, pins, ...props}: Props) {
                      latitude: center ? center[1] : undefined,
                      zoom: zoom,
                  }}
-                 maplibreLogo
                  cancelPendingTileRequestsWhileZooming={false}
                  maxBounds={bounds}
                  mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json">

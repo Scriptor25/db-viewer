@@ -27,6 +27,10 @@ export default async function Page({params}: Props) {
         center[1] = eva.geographicCoordinates.coordinates[1];
     }
 
+    const padx = 0.002;
+    const pady = 0.001;
+    const bounds: [LngLat, LngLat] = [[center[0] - padx, center[1] - pady], [center[0] + padx, center[1] + pady]];
+
     const pins = facilities
         .filter(facility => facility.geocoordX !== undefined && facility.geocoordY !== undefined)
         .map(facility => ({
@@ -41,13 +45,24 @@ export default async function Page({params}: Props) {
         } as Pin));
     pins.push({location: center});
 
+    for (const pin of pins) {
+        if (pin.location[0] - padx < bounds[0][0])
+            bounds[0][0] = pin.location[0] - padx;
+        if (pin.location[0] + padx > bounds[1][0])
+            bounds[1][0] = pin.location[0] + padx;
+        if (pin.location[1] - pady < bounds[0][1])
+            bounds[0][1] = pin.location[1] - pady;
+        if (pin.location[1] + pady > bounds[1][1])
+            bounds[1][1] = pin.location[1] + pady;
+    }
+
     return (
         <main className={styles.container}>
             <div className={styles.heading}>
                 <Link href="/"><FontAwesomeIcon icon={faArrowLeftLong} size="2xl"/></Link>
                 <h1>{station?.name}</h1>
             </div>
-            <MapView center={center} zoom={16} pins={pins} className={styles.map}/>
+            <MapView center={center} bounds={bounds} pins={pins} className={styles.map}/>
         </main>
     );
 }

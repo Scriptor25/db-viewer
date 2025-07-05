@@ -13,33 +13,77 @@ import styles from "./page.module.scss";
 
 const ITEMS_PER_PAGE = 20;
 
-async function StationView(element: StationData) {
+async function StationView({hasQueryFilter, hasStateFilter, attributeFilter, ...element}: StationData & {
+    hasQueryFilter?: boolean,
+    hasStateFilter?: boolean,
+    attributeFilter?: string[],
+}) {
+    const filterIf = (id: string) => attributeFilter?.includes(id)
+        ? styles.filter
+        : undefined;
+
     return (
-        <Link key={element.number} href={`/station/${element.number}`} className={styles.station}>
-            <span>{element.name}</span>
-            <span>{element.federalState}</span>
-            <FontAwesomeIcon icon={element.hasBicycleParking ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasCarRental ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasDBLounge ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasLocalPublicTransport ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasLockerSystem ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasLostAndFound ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasParking ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasPublicFacilities ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasRailwayMission ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={
-                element.hasSteplessAccess === "yes"
-                    ? faCheck
-                    : element.hasSteplessAccess === "no"
-                        ? faClose
-                        : faCircle
-            }/>
-            <FontAwesomeIcon icon={element.hasTaxiRank ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasTravelCenter ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasTravelNecessities ? faCheck : faClose}/>
-            <FontAwesomeIcon icon={element.hasWiFi ? faCheck : faClose}/>
+        <Link href={`/station/${element.number}`} className={styles.station}>
+            <span className={hasQueryFilter ? styles.filter : undefined}>{element.name}</span>
+            <span className={hasStateFilter ? styles.filter : undefined}>{element.federalState}</span>
+            <span className={filterIf("hasBicycleParking")}>
+                <FontAwesomeIcon icon={element.hasBicycleParking ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasCarRental")}>
+                <FontAwesomeIcon icon={element.hasCarRental ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasDBLounge")}>
+                <FontAwesomeIcon icon={element.hasDBLounge ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasLocalPublicTransport")}>
+                <FontAwesomeIcon icon={element.hasLocalPublicTransport ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasLockerSystem")}>
+                <FontAwesomeIcon icon={element.hasLockerSystem ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasLostAndFound")}>
+                <FontAwesomeIcon icon={element.hasLostAndFound ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasParking")}>
+                <FontAwesomeIcon icon={element.hasParking ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasPublicFacilities")}>
+                <FontAwesomeIcon icon={element.hasPublicFacilities ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasRailwayMission")}>
+                <FontAwesomeIcon icon={element.hasRailwayMission ? faCheck : faClose}/>
+            </span>
+            <span>
+                <FontAwesomeIcon icon={
+                    element.hasSteplessAccess === "yes"
+                        ? faCheck
+                        : element.hasSteplessAccess === "no"
+                            ? faClose
+                            : faCircle
+                }/>
+            </span>
+            <span className={filterIf("hasTaxiRank")}>
+                <FontAwesomeIcon icon={element.hasTaxiRank ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasTravelCenter")}>
+                <FontAwesomeIcon icon={element.hasTravelCenter ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasTravelNecessities")}>
+                <FontAwesomeIcon icon={element.hasTravelNecessities ? faCheck : faClose}/>
+            </span>
+            <span className={filterIf("hasWiFi")}>
+                <FontAwesomeIcon icon={element.hasWiFi ? faCheck : faClose}/>
+            </span>
             <span>{element.category}</span>
             <span>{element.priceCategory}</span>
+            <span>
+                <FontAwesomeIcon icon={element.hasMobilityService === "no" ? faClose : faCheck}/>
+                {element.hasMobilityService === "Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)"
+                    ? "only by appointment"
+                    : element.hasMobilityService === "Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten"
+                        ? "advance registration is requested"
+                        : undefined}
+            </span>
         </Link>
     );
 }
@@ -50,25 +94,27 @@ type Props = {
 
 export default async function Page({searchParams}: Props) {
 
-    const {query, state, attribute} = await searchParams;
+    const {query, states, attributes, mode} = await searchParams;
 
-    const queryFilter = (typeof query === "string") ? query.split(/\s+/).map(value => `*${value}*`) : undefined;
-    const stateFilter = (typeof state === "string") ? [state] : state;
-    const attributeFilter = (typeof attribute === "string") ? [attribute] : attribute;
+    const filterQuery = (query as string | undefined)?.split(/\s+/).map(value => `*${value}*`);
+    const filterStates = (typeof states === "string") ? [states] : states;
+    const filterAttributes = (typeof attributes === "string") ? [attributes] : attributes;
+    const filterMode = mode as "and" | "or" | undefined;
 
-    async function page(index: number, {queryFilter, stateFilter, attributeFilter}: {
-        queryFilter?: string[],
-        stateFilter?: string[],
-        attributeFilter?: string[]
+    async function page(index: number, {filterQuery, filterStates, filterAttributes, filterMode}: {
+        filterQuery?: string[],
+        filterStates?: string[],
+        filterAttributes?: string[],
+        filterMode?: "and" | "or" | undefined,
     }) {
         "use server";
 
-        if (!attributeFilter) {
+        if (!filterAttributes) {
             const {total, items} = await getAllStationsData({
                 limit: ITEMS_PER_PAGE,
                 offset: index * ITEMS_PER_PAGE,
-                searchstring: queryFilter,
-                federalstate: stateFilter,
+                searchstring: filterQuery,
+                federalstate: filterStates,
             });
 
             return {
@@ -80,8 +126,8 @@ export default async function Page({searchParams}: Props) {
         const {total} = await getAllStationsData({
             limit: 1,
             offset: 0,
-            searchstring: queryFilter,
-            federalstate: stateFilter,
+            searchstring: filterQuery,
+            federalstate: filterStates,
         });
 
         const filtered: StationData[] = [];
@@ -90,16 +136,31 @@ export default async function Page({searchParams}: Props) {
             const {items} = await getAllStationsData({
                 limit: 1000,
                 offset: i,
-                searchstring: queryFilter,
-                federalstate: stateFilter,
+                searchstring: filterQuery,
+                federalstate: filterStates,
             });
 
-            for (const item of items)
-                for (const attribute of attributeFilter)
-                    if ((item as { [key: string]: unknown })[attribute] === true) {
-                        filtered.push(item);
-                        break;
+            for (const item of items) {
+                let ok = true;
+                let any = false;
+                for (const attribute of filterAttributes) {
+                    const hasAttribute = (item as { [key: string]: unknown })[attribute] === true;
+                    if (!filterMode || filterMode === "and") {
+                        if (!hasAttribute) {
+                            ok = false;
+                            break;
+                        }
+                        any = true;
+                    } else if (filterMode === "or") {
+                        if (hasAttribute) {
+                            any = true;
+                            break;
+                        }
                     }
+                }
+                if (ok && any)
+                    filtered.push(item);
+            }
         }
 
         return {
@@ -132,16 +193,32 @@ export default async function Page({searchParams}: Props) {
                     <span>WiFi</span>
                     <span>Category</span>
                     <span>Price Category</span>
+                    <span>Mobility Service</span>
                 </div>
-                {elements.map(StationView)}
+                {elements.map(element => (
+                    <StationView key={element.number}
+                                 hasQueryFilter={filterQuery !== undefined}
+                                 hasStateFilter={filterStates !== undefined}
+                                 attributeFilter={filterAttributes} {...element}/>
+                ))}
             </div>
         );
     }
 
     return (
         <main>
-            <FilterView/>
-            <PageView pageAction={page} renderAction={render} extra={{queryFilter, stateFilter, attributeFilter}}/>
+            <FilterView query={query as string | undefined}
+                        states={filterStates ?? []}
+                        attributes={filterAttributes ?? []}
+                        mode={filterMode}/>
+            <PageView pageAction={page}
+                      renderAction={render}
+                      extra={{
+                          filterQuery,
+                          filterStates,
+                          filterAttributes,
+                          filterMode,
+                      }}/>
         </main>
     );
 }

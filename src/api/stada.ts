@@ -142,7 +142,7 @@ export type StationData = {
      * OR 'Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)'
      * OR 'Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten'
      */
-    hasMobilityService: string,
+    hasMobilityService: "no" | "Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)" | "Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten",
     hasParking: boolean,
     hasPublicFacilities: boolean,
     hasRailwayMission: boolean,

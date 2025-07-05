@@ -1,7 +1,9 @@
 :root {
-  --outline-color: #ccc;
-  --border-color: #ddd;
-  --background-color: #eee;
+  --color-outline: #ccc;
+  --color-border: #ddd;
+  --color-background: #eee;
+  --color-accent: #ec0016;
+  --color-text: #222;
 }
 
 * {
@@ -11,20 +13,21 @@
 html, body {
   margin: 0;
   padding: 0;
+  color: var(--color-text);
 }
 
 button, .button {
   background: none;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border);
   cursor: pointer;
 
   &:hover, &:focus, &:active, &.selection {
-    background: var(--background-color);
-    outline: 1px solid var(--outline-color);
+    background: var(--color-background);
+    outline: 1px solid var(--color-outline);
   }
 
   &:disabled {
-    background: var(--background-color);
+    background: var(--color-background);
     outline: none;
   }
 }
@@ -53,12 +56,16 @@ label {
 }
 
 a {
-  color: #ff0000;
   cursor: pointer;
   font-weight: bold;
+
   text-decoration: none;
+  color: var(--color-text);
+
+  transition: color 0.2s;
 
   &:hover, &:focus, &:active {
     text-decoration: underline;
+    color: var(--color-accent);
   }
 }

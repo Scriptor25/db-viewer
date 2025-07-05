@@ -320,15 +320,14 @@ export async function getAllStationsData(query?: {
         offset: number,
         total: number,
         result: StationData[],
-    }>(`station-data/v2/stations?${params}`, {
-        next: {revalidate: 3600},
-    }, async (resource, response) => {
-        if (response.status === 400 || response.status === 404 || response.status === 500) {
-            const json = await response.json();
-            console.error(json);
-            return null;
-        }
-    });
+    }, null>(
+        `station-data/v2/stations?${params}`, {
+            next: {revalidate: 3600},
+        }, async response => {
+            if (response.status === 404) {
+                return null;
+            }
+        });
 
     if (!result)
         return {
@@ -352,9 +351,14 @@ export async function getStationData(id: number) {
         offset: number,
         total: number,
         result: StationData[],
-    }>(`station-data/v2/stations/${id}`, {
-        next: {revalidate: 3600},
-    });
+    }, null>(
+        `station-data/v2/stations/${id}`, {
+            next: {revalidate: 3600},
+        }, async response => {
+            if (response.status === 404) {
+                return null;
+            }
+        });
 
     if (!result)
         return null;
@@ -388,9 +392,14 @@ export async function getAll3SCentersData(query?: {
         offset: number,
         total: number,
         result: SCenterData[],
-    }>(`station-data/v2/szentralen?${params}`, {
-        next: {revalidate: 3600},
-    });
+    }, null>(
+        `station-data/v2/szentralen?${params}`, {
+            next: {revalidate: 3600},
+        }, async response => {
+            if (response.status === 404) {
+                return null;
+            }
+        });
 
     if (!result)
         return {
@@ -414,9 +423,14 @@ export async function get3SCenterData(id: number) {
         offset: number,
         total: number,
         result: SCenterData[],
-    }>(`station-data/v2/szentralen/${id}`, {
-        next: {revalidate: 3600},
-    });
+    }, null>(
+        `station-data/v2/szentralen/${id}`, {
+            next: {revalidate: 3600},
+        }, async response => {
+            if (response.status === 404) {
+                return null;
+            }
+        });
 
     if (!result)
         return null;

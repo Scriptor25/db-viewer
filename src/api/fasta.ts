@@ -82,7 +82,14 @@ export async function getAllFacilitiesStatus(query?: {
             params.set("area", query.area.join(","));
     }
 
-    const result = await fetchJSON<FacilityStatusData[]>(`fasta/v2/facilities?${params}`);
+    const result = await fetchJSON<FacilityStatusData[], null>(
+        `fasta/v2/facilities?${params}`,
+        undefined,
+        async response => {
+            if (response.status === 404) {
+                return null;
+            }
+        });
 
     if (!result)
         return {
@@ -101,15 +108,23 @@ export async function getAllFacilitiesStatus(query?: {
 }
 
 export async function getFacilityStatus(id: number) {
-    return await fetchJSON<FacilityStatusData>(`fasta/v2/facilities/${id}`);
+    return await fetchJSON<FacilityStatusData, null>(
+        `fasta/v2/facilities/${id}`,
+        undefined,
+        async response => {
+            if (response.status === 404) {
+                return null;
+            }
+        });
 }
 
 export async function getStationFacilityStatus(id: number) {
-    return await fetchJSON<StationFacilityStatusData>(`fasta/v2/stations/${id}`, {
-        next: {revalidate: 3600},
-    }, async (resource, response) => {
-        if (response.status === 404) {
-            return null;
-        }
-    });
+    return await fetchJSON<StationFacilityStatusData, null>(
+        `fasta/v2/stations/${id}`, {
+            next: {revalidate: 3600},
+        }, async response => {
+            if (response.status === 404) {
+                return null;
+            }
+        });
 }

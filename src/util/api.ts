@@ -7,7 +7,7 @@ export type QueryResult<T> = {
     items: T[],
 }
 
-export async function fetchAPI<E>(resource: string, accept: string, partialInit?: RequestInit, onError?: (resource: string, response: Response) => Promise<E | undefined>): Promise<{
+export async function fetchAPI<E>(resource: string, accept: string, partialInit?: RequestInit, onError?: (response: Response) => Promise<E | undefined>): Promise<{
     error: false,
     response: Response
 } | {
@@ -30,7 +30,7 @@ export async function fetchAPI<E>(resource: string, accept: string, partialInit?
     const response = await fetch(`${process.env.API_ENDPOINT!}/${resource}`, init);
 
     if (!response.ok) {
-        const result = onError ? await onError(resource, response) : undefined;
+        const result = onError ? await onError(response) : undefined;
         if (result === undefined)
             throw new Error(`failed to fetch api resource ${resource}: ${response.url} - ${response.status} - ${response.statusText}`);
         return {error: true, response: result};
@@ -39,7 +39,7 @@ export async function fetchAPI<E>(resource: string, accept: string, partialInit?
     return {error: false, response};
 }
 
-export async function fetchXML<T, E = null>(resource: string, partialInit?: RequestInit, onError?: (resource: string, response: Response) => Promise<E | undefined>): Promise<T | E> {
+export async function fetchXML<T, E = never>(resource: string, partialInit?: RequestInit, onError?: (response: Response) => Promise<E | undefined>): Promise<T | E> {
 
     const {error, response} = await fetchAPI<E>(resource, "application/xml", partialInit, onError);
 
@@ -61,7 +61,7 @@ export async function fetchXML<T, E = null>(resource: string, partialInit?: Requ
     return object as T;
 }
 
-export async function fetchJSON<T, E = null>(resource: string, partialInit?: RequestInit, onError?: (resource: string, response: Response) => Promise<E | undefined>): Promise<T | E> {
+export async function fetchJSON<T, E = never>(resource: string, partialInit?: RequestInit, onError?: (response: Response) => Promise<E | undefined>): Promise<T | E> {
 
     const {error, response} = await fetchAPI(resource, "application/json", partialInit, onError);
 

@@ -4,6 +4,7 @@ import {LngLat, MapView, Pin} from "@/component/map-view/map-view";
 import {faArrowLeftLong} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import Link from "next/link";
+import {notFound} from "next/navigation";
 
 import styles from "./page.module.scss";
 
@@ -16,12 +17,15 @@ export default async function Page({params}: Props) {
     const {id} = await params;
 
     const station = await getStationData(id);
+    if (!station)
+        notFound();
+
     const status = await getStationFacilityStatus(id);
     const facilities = status?.facilities ?? [];
 
     const center: LngLat = [0, 0];
 
-    const eva = station?.evaNumbers?.find(entry => entry.isMain);
+    const eva = station.evaNumbers.find(entry => entry.isMain);
     if (eva) {
         center[0] = eva.geographicCoordinates.coordinates[0];
         center[1] = eva.geographicCoordinates.coordinates[1];
@@ -60,7 +64,7 @@ export default async function Page({params}: Props) {
         <main className={styles.container}>
             <div className={styles.heading}>
                 <Link href="/"><FontAwesomeIcon icon={faArrowLeftLong} size="2xl"/></Link>
-                <h1>{station?.name}</h1>
+                <h1>{station.name}</h1>
             </div>
             <MapView center={center} bounds={bounds} pins={pins} className={styles.map}/>
         </main>

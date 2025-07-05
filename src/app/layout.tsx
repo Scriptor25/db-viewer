@@ -1,4 +1,5 @@
 import "@fortawesome/fontawesome-svg-core/styles";
+
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import "./globals.scss";

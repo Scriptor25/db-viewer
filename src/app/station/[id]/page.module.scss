@@ -26,3 +26,34 @@
   width: auto;
   height: 30rem;
 }
+
+.popup {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 4px;
+  padding: 2px;
+
+  & .header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    text-overflow: ellipsis;
+    text-wrap: nowrap;
+    overflow-x: hidden;
+    gap: 7px;
+  }
+
+  & .content {
+    display: flex;
+    flex-flow: column nowrap;
+    padding: 4px;
+  }
+
+  & .italic {
+    font-style: italic;
+  }
+
+  & hr {
+    width: 100%;
+  }
+}

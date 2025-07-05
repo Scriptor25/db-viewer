@@ -1,0 +1,23 @@
+.dialog:modal {
+  & form {
+    & h3 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    & button {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 1rem;
+
+      padding: 0.5rem 2rem;
+
+      & span:has(svg) {
+        width: 1rem;
+        text-align: center;
+      }
+    }
+  }
+}

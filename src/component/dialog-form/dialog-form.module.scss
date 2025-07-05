@@ -1,0 +1,24 @@
+.dialog:modal {
+  border: none;
+  padding: 4rem;
+  box-shadow: 0 0 10px 10px rgba(0, 0, 0, 0.2);
+
+  & form {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 1rem;
+
+    & .close {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+
+      padding: 0;
+      background: none;
+      border: none;
+      outline: none;
+    }
+  }
+}

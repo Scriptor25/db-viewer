@@ -1,14 +1,15 @@
 "use client";
 
 import {Marker, Popup} from "maplibre-gl";
-import {DetailedHTMLProps, HTMLAttributes, useEffect, useState} from "react";
+import {DetailedHTMLProps, HTMLAttributes, ReactNode, useEffect, useState} from "react";
+import {createRoot, Root} from "react-dom/client";
 import {Map, MapRef} from "react-map-gl/maplibre";
 
 export type LngLat = [number, number];
 export type Pin = {
     location: LngLat,
+    content?: ReactNode,
     color?: string,
-    html?: string,
 };
 
 type Props = {
@@ -24,6 +25,8 @@ export function MapView({center, bounds, zoom, pins, ...props}: Props) {
 
     useEffect(() => {
         const markers: Marker[] = [];
+        const roots: Root[] = [];
+
         if (mapRef !== null) {
             const map = mapRef.getMap();
             pins?.forEach(pin => {
@@ -31,12 +34,17 @@ export function MapView({center, bounds, zoom, pins, ...props}: Props) {
                     .setLngLat(pin.location)
                     .addTo(map);
 
-                if (pin.html) {
+                if (pin.content) {
+                    const container = document.createElement("div");
+                    const root = createRoot(container);
+                    root.render(pin.content);
+
                     const popup = new Popup({
                         closeButton: false,
                         closeOnMove: true,
                         closeOnClick: true,
-                    }).setHTML(pin.html);
+                        maxWidth: "none",
+                    }).setDOMContent(container);
 
                     marker.setPopup(popup);
                 }
@@ -44,7 +52,10 @@ export function MapView({center, bounds, zoom, pins, ...props}: Props) {
                 markers.push(marker);
             });
         }
-        return () => markers.forEach(marker => marker.remove());
+        return () => {
+            markers.forEach(marker => marker.remove());
+            roots.forEach(root => root.unmount());
+        };
     }, [mapRef, pins]);
 
     return (

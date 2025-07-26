@@ -2,7 +2,7 @@
 
 import {Marker, Popup} from "maplibre-gl";
 import {DetailedHTMLProps, HTMLAttributes, ReactNode, useEffect, useState} from "react";
-import {createRoot, Root} from "react-dom/client";
+import {createRoot} from "react-dom/client";
 import {Map, MapRef} from "react-map-gl/maplibre";
 
 export type LngLat = [number, number];
@@ -25,7 +25,6 @@ export function MapView({center, bounds, zoom, pins, ...props}: Props) {
 
     useEffect(() => {
         const markers: Marker[] = [];
-        const roots: Root[] = [];
 
         if (mapRef !== null) {
             const map = mapRef.getMap();
@@ -52,9 +51,9 @@ export function MapView({center, bounds, zoom, pins, ...props}: Props) {
                 markers.push(marker);
             });
         }
+
         return () => {
             markers.forEach(marker => marker.remove());
-            roots.forEach(root => root.unmount());
         };
     }, [mapRef, pins]);
 

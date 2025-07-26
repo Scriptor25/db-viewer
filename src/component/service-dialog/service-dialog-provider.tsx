@@ -6,6 +6,7 @@ import {faApple, faGoogle, faMicrosoft} from "@fortawesome/free-brands-svg-icons
 import {faMap, faMobile} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {PropsWithChildren, useRef} from "react";
+
 import styles from "./service-dialog.module.scss";
 
 export function ServiceDialogProvider({children}: PropsWithChildren) {

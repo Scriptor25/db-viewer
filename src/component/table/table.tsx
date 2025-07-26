@@ -1,130 +1,122 @@
-"use client";
-
+import {TableRow, TableRowProps} from "@/component/table/table-row";
+import {IconProp} from "@fortawesome/fontawesome-svg-core";
 import {faCircle} from "@fortawesome/free-regular-svg-icons";
 import {faCheck, faClose} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {useRouter} from "next/navigation";
-import {ComponentType, DetailedHTMLProps, ReactNode, TableHTMLAttributes} from "react";
+import {ComponentType, ReactNode} from "react";
 
 import styles from "./table.module.scss";
 
-type TableRowProps = {
-    href?: string,
-} & DetailedHTMLProps<TableHTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement>;
-
-export function TableRow({href, ...props}: TableRowProps) {
-
-    const router = useRouter();
-
-    return (
-        <tr onClick={() => {
-            if (href) router.push(href);
-        }} onKeyDown={event => {
-            if (href && event.key === "Enter") {
-                router.push(href);
-            }
-        }} {...props}/>
-    );
-}
-
-type Field<T, K extends keyof T> = {
+export type Field<T, K extends keyof T> = {
     key: K,
     label: string,
 } & ({
-    type: "boolean" | "tristate" | "number" | "string",
+    type: "boolean" | "number" | "string",
+} | {
+    type: "tristate",
+    "0": T[K],
+    "1": T[K],
+    "2": T[K],
 } | {
     type: "custom",
-    render: ComponentType<T[K]>,
+    render: ComponentType<{ data: T[K] }>,
 });
 
-// type Template<T> = Field<T, keyof T>[];
-type Fields<T> = readonly (keyof T)[];
-type Template<T, F extends Fields<T>> = {
-    [I in keyof F]: F[I] extends keyof T ? Field<T, F[I]> : never;
+export type Order<T> = readonly (keyof T)[];
+
+export type Template<T, O extends Order<T>> = {
+    [I in keyof O]: O[I] extends keyof T ? Field<T, O[I]> : never
 };
 
-type DataTableFieldProps<T> = {
+export type DataTableFieldProps<T> = {
     field: Field<T, keyof T>,
-    data: T[keyof T],
-    active: boolean,
+    data?: T[keyof T],
+    active?: boolean,
 };
 
-type DataTableRowProps<T, F extends Fields<T>> = {
-    template: Template<T, F>,
-    data: T,
+export type DataTableRowProps<T> = {
+    value: T,
+    row?: TableRowProps,
 };
 
-type DataTableProps<T, F extends Fields<T>> = {
-    template: Template<T, F>,
-    data: T[],
+export type DataTableProps<T, O extends Order<T>> = {
+    template: Template<T, O>,
+    data: DataTableRowProps<T>[],
+    className?: string,
 };
 
-export function TableData<T>({field, data, active}: DataTableFieldProps<T>) {
+export function DataTableField<T>({field, data, active}: DataTableFieldProps<T>) {
 
     let content: ReactNode;
-    let className: string;
+    let className: string | undefined;
 
-    switch (field.type) {
-        case "boolean":
-            content = <FontAwesomeIcon icon={data ? faCheck : faClose}/>;
-            className = styles.boolean;
-            break;
-        case "number":
-            content = <span>{data as number}</span>;
-            className = styles.number;
-            break;
-        case "tristate":
-            content = <FontAwesomeIcon icon={data === true ? faCheck : data === false ? faClose : faCircle}/>;
-            className = styles.tristate;
-            break;
-        case "string":
-            content = <span>{data as string}</span>;
-            className = styles.string;
-            break;
-        case "custom":
-            const Render = field.render as ComponentType<object>;
-            content = <Render {...data as object}/>;
-            className = styles.custom;
-            break;
-    }
+    if (data !== undefined)
+        switch (field.type) {
+            case "boolean":
+                content = <FontAwesomeIcon icon={data ? faCheck : faClose}/>;
+                className = styles.boolean;
+                break;
+            case "number":
+                content = <span>{data as number}</span>;
+                className = styles.number;
+                break;
+            case "tristate": {
+                let icon: IconProp;
+                switch (data) {
+                    case field[0]:
+                        icon = faClose;
+                        break;
+                    case field[1]:
+                        icon = faCheck;
+                        break;
+                    case field[2]:
+                        icon = faCircle;
+                        break;
+                    default:
+                        throw new Error(`invalid tristate data ${data} for states ${field[0]} -> ${field[1]} -> ${field[2]}`);
+                }
+                content = <FontAwesomeIcon icon={icon}/>;
+                className = styles.tristate;
+                break;
+            }
+            case "string":
+                content = <span>{data as string}</span>;
+                className = styles.string;
+                break;
+            case "custom": {
+                const Render = field.render;
+                content = <Render data={data}/>;
+                className = styles.custom;
+                break;
+            }
+        }
 
-    return <td className={`${className} ${active ? styles.active : ""}`}>{content}</td>;
+    return <td className={`${className ?? ""} ${active ? styles.active : ""}`}>{content}</td>;
 }
 
-export function TableDataRow<T, F extends Fields<T>>({template, data}: DataTableRowProps<T, F>) {
+export function DataTable<T, O extends Order<T>>(
+    {template, data, className}: DataTableProps<T, O>,
+) {
     return (
-        <TableRow>
-            {template.map(field => (
-                <TableData key={String(field.key)} field={field} data={data[field.key]} active/>
-            ))}
-        </TableRow>
-    );
-}
-
-export function Table<T, F extends Fields<T>>({template, data}: DataTableProps<T, F>) {
-    return (
-        <table>
+        <table className={className}>
             <thead>
             <tr>
-                {template.map(field => (<th>{field.label}</th>))}
+                {template.map(field => (
+                    <th key={String(field.key)}>
+                        <span>{field.label}</span>
+                    </th>
+                ))}
             </tr>
             </thead>
             <tbody>
-            {data.map((data, index) => <TableDataRow key={index} template={template} data={data}/>)}
+            {data.map(({value, row}, index) => (
+                <TableRow key={index} {...row}>
+                    {template.map(field => (
+                        <DataTableField key={String(field.key)} field={field} data={value[field.key]} active/>
+                    ))}
+                </TableRow>
+            ))}
             </tbody>
         </table>
     );
 }
-
-const x: Template<{ foo: string, bar: number, world: object }, ["foo", "bar", "world"]> = [
-    {key: "foo", label: "Foo", type: "string"},
-    {key: "bar", label: "Bar", type: "number"},
-    {key: "world", label: "World", type: "custom", render: props => <p>{JSON.stringify(props)}</p>},
-];
-
-const a = x[0];
-const b = x[1];
-
-// fields: [ { id: "foo", type: "string" }, { id: "bar", type: "number" }, ... ]
-// mydata: { foo: string, bar: number, ... }[] = [...]
-// <mytable fields={fields} mydata={mydata}/>

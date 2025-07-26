@@ -146,7 +146,7 @@ export type StationData = {
     hasParking: boolean,
     hasPublicFacilities: boolean,
     hasRailwayMission: boolean,
-    hasSteplessAccess: "yes" | "no" | "partial",
+    hasSteplessAccess: "yes" | "no" | "partial" | null,
     hasTaxiRank: boolean,
     hasTravelCenter: boolean,
     hasTravelNecessities: boolean,

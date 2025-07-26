@@ -9,19 +9,21 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 type Props = {
     openDialogAction: (location: LngLat) => void,
 
-    station: StationData,
+    station: StationData | null,
     center: LngLat,
 }
 
-export function StationPopup({openDialogAction, station: {name}, center}: Props) {
+export function StationPopup({openDialogAction, station, center}: Props) {
     return (
         <div className={styles.popup}>
-            <div className={styles.header}>
+            <p className={styles.header}>
                 <FontAwesomeIcon icon={faHouse}/>
-                <h3>{name}</h3>
-            </div>
+                {station?.name}
+            </p>
             <hr/>
-            <a onClick={() => openDialogAction(center)}>{center[0]}, {center[1]}</a>
+            <p className={styles.link}>
+                <a onClick={() => openDialogAction(center)}>{center[0]}, {center[1]}</a>
+            </p>
         </div>
     );
 }

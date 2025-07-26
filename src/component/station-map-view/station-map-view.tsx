@@ -13,20 +13,20 @@ const PAD_X = 0.002;
 const PAD_Y = 0.001;
 
 type Props = {
-    station: StationData,
-    status: StationFacilityStatusData,
+    station: StationData | null,
+    status: StationFacilityStatusData | null,
 }
 
 export function StationMapView({station, status}: Props) {
 
     const {openDialog} = useContext(ServiceDialogContext);
 
-    const facilities = status.facilities ?? [];
+    const facilities = status?.facilities ?? [];
 
     let center: LngLat | undefined;
     let bounds: [LngLat, LngLat] | undefined;
 
-    const eva = station.evaNumbers.find(entry => entry.isMain);
+    const eva = station?.evaNumbers.find(entry => entry.isMain);
     if (eva) {
         center = eva.geographicCoordinates.coordinates.slice(0, 2) as LngLat;
         bounds = [

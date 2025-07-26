@@ -1,14 +1,9 @@
 import {getStationFacilityStatus} from "@/api/fasta";
 import {getStationData} from "@/api/stada";
+import {ReturnButton} from "@/component/return-button/return-button";
 
 import {ServiceDialogProvider} from "@/component/service-dialog/service-dialog-provider";
 import {StationMapView} from "@/component/station-map-view/station-map-view";
-
-import {faArrowLeftLong} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-
-import Link from "next/link";
-import {notFound} from "next/navigation";
 
 import styles from "./page.module.scss";
 
@@ -23,16 +18,12 @@ export default async function Page({params}: Props) {
     const station = await getStationData(id);
     const status = await getStationFacilityStatus(id);
 
-    if (!station || !status) {
-        notFound();
-    }
-
     return (
         <>
             <main className={styles.container}>
                 <div className={styles.heading}>
-                    <Link href="/" title="Back to Home Page"><FontAwesomeIcon icon={faArrowLeftLong} size="2xl"/></Link>
-                    <h1>{station.name}</h1>
+                    <ReturnButton/>
+                    <h1>{station?.name}</h1>
                 </div>
                 <fieldset>
                     <legend><h2>Map</h2></legend>

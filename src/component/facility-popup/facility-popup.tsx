@@ -26,16 +26,18 @@ export function FacilityPopup(
 ) {
     return (
         <div className={styles.popup}>
-            <div className={styles.header}>
+            <p className={styles.header}>
                 <FontAwesomeIcon icon={type === "ELEVATOR" ? faElevator : faStairs}/>
-                <h3>{description}</h3>
-            </div>
-            <div className={styles.content}>
+                {description}
+            </p>
+            <p className={styles.content}>
                 <span>{stateExplanation}</span>
                 <span className={styles.italic}>{operatorname}</span>
-            </div>
+            </p>
             <hr/>
-            <a onClick={() => openDialogAction([geocoordX!, geocoordY!])}>{geocoordX}, {geocoordY}</a>
+            <p className={styles.link}>
+                <a onClick={() => openDialogAction([geocoordX!, geocoordY!])}>{geocoordX}, {geocoordY}</a>
+            </p>
         </div>
     );
 }

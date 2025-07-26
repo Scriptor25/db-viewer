@@ -1,8 +1,6 @@
 "use client";
 
 import {useRouter} from "next/navigation";
-import {FormEventHandler, useCallback, useState} from "react";
-
 import styles from "./filter-view.module.scss";
 
 const STATES: [string, string][] = [
@@ -47,72 +45,31 @@ type Params = {
     mode?: "and" | "or",
 }
 
-function setChecked<T>(array: T[], setArray: (supplier: (array: T[]) => T[]) => void, value: T, checked: boolean) {
-    const included = array.includes(value);
-    setArray(array => (checked && !included)
-        ? [...array, value]
-        : (!checked && included)
-            ? array.filter(x => x !== value)
-            : array);
-}
-
-export function FilterView(params: Params) {
+export function FilterView({query, states, attributes, mode}: Params) {
 
     const router = useRouter();
 
-    const [query, setQuery] = useState(() => params.query);
-    const [states, setStates] = useState(() => params.states);
-    const [attributes, setAttributes] = useState(() => params.attributes);
-    const [mode, setMode] = useState(() => params.mode);
-
-    const setStateChecked = useCallback((value: string, checked: boolean) => {
-        setChecked(states, setStates, value, checked);
-    }, [states, setStates]);
-
-    const setAttributeChecked = useCallback((value: string, checked: boolean) => {
-        setChecked(attributes, setAttributes, value, checked);
-    }, [attributes, setAttributes]);
-
-    const submit: FormEventHandler = useCallback(event => {
-        event.preventDefault();
-
-        const searchParams = new URLSearchParams();
-
-        if (query)
-            searchParams.set("query", query);
-        for (const state of states)
-            searchParams.append("states", state);
-        for (const attribute of attributes)
-            searchParams.append("attributes", attribute);
-        if (mode)
-            searchParams.set("mode", mode);
-
-        router.push(`?${searchParams}`, {scroll: false});
-    }, [query, states, attributes, mode, router]);
-
-    const reset: FormEventHandler = useCallback(event => {
-        event.preventDefault();
-
-        setQuery(undefined);
-        setStates([]);
-        setAttributes([]);
-        setMode(undefined);
-    }, [setQuery, setStates, setAttributes, setMode]);
-
     return (
-        <form className={styles.container} onSubmit={submit} onReset={reset}>
-            <input type="text"
-                   enterKeyHint="search"
-                   placeholder="filter station by name"
-                   value={query ?? ""}
-                   onChange={event => setQuery(event.target.value)}/>
+        <form className={styles.container} onReset={() => router.replace("?")} suppressHydrationWarning>
+            <fieldset className={styles.group}>
+                <legend>Station Name</legend>
+                <label>
+                    <span>Filter Station Name</span>
+                    <input type="text"
+                           name="query"
+                           defaultValue={query}
+                           enterKeyHint="search"
+                           placeholder="filter station by name"/>
+                </label>
+            </fieldset>
             <fieldset className={styles.group}>
                 <legend>Federal States</legend>
                 {STATES.map(([value, label]) => (
                     <label key={value}>
                         <input type="checkbox"
-                               checked={states.includes(value)}
-                               onChange={event => setStateChecked(value, event.target.checked)}/>
+                               name="states"
+                               defaultChecked={states.includes(value)}
+                               value={value}/>
                         <span>{label}</span>
                     </label>
                 ))}
@@ -122,19 +79,21 @@ export function FilterView(params: Params) {
                 {ATTRIBUTES.map(([value, label]) => (
                     <label key={value}>
                         <input type="checkbox"
-                               checked={attributes.includes(value)}
-                               onChange={event => setAttributeChecked(value, event.target.checked)}/>
+                               name="attributes"
+                               defaultChecked={attributes.includes(value)}
+                               value={value}/>
                         <span>{label}</span>
                     </label>
                 ))}
             </fieldset>
             <label>
                 <input type="checkbox"
-                       checked={mode === "or"}
-                       onChange={event => setMode(event.target.checked ? "or" : "and")}/>
+                       name="mode"
+                       defaultChecked={mode === "or"}
+                       value="or"/>
                 <span>OR Attribute Filter</span>
             </label>
-            <div className={styles.buttonGroup}>
+            <div className={styles.group}>
                 <button type="submit">Apply Filter</button>
                 <button type="reset">Clear Filter</button>
             </div>

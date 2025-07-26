@@ -30,8 +30,9 @@
 .popup {
   display: flex;
   flex-flow: column nowrap;
-  gap: 4px;
+  gap: 5px;
   padding: 2px;
+  background: var(--color-panel);
 
   & .header {
     display: flex;
@@ -40,17 +41,23 @@
     text-overflow: ellipsis;
     text-wrap: nowrap;
     overflow-x: hidden;
+    font-weight: bold;
     gap: 7px;
   }
 
   & .content {
     display: flex;
     flex-flow: column nowrap;
+    gap: 4px;
     padding: 4px;
   }
 
   & .italic {
     font-style: italic;
+  }
+
+  & .link {
+    padding: 4px;
   }
 
   & hr {

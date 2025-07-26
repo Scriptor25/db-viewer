@@ -3,11 +3,11 @@
 import {getAllStationsData, StationData} from "@/api/stada";
 import {FilterView} from "@/component/filter-view/filter-view";
 import {PageView} from "@/component/page-view/page-view";
+import {TableRow} from "@/component/table/table";
 import {faCircle} from "@fortawesome/free-regular-svg-icons";
 import {faCheck, faClose} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {SearchParams} from "next/dist/server/request/search-params";
-import Link from "next/link";
 
 import styles from "./page.module.scss";
 
@@ -23,37 +23,37 @@ async function StationView({hasQueryFilter, hasStateFilter, attributeFilter, ...
         : undefined;
 
     return (
-        <Link href={`/station/${element.number}`} className={styles.station}>
-            <span className={hasQueryFilter ? styles.filter : undefined}>{element.name}</span>
-            <span className={hasStateFilter ? styles.filter : undefined}>{element.federalState}</span>
-            <span className={filterIf("hasBicycleParking")}>
+        <TableRow href={`/station/${element.number}`}>
+            <td className={hasQueryFilter ? styles.filter : undefined}>{element.name}</td>
+            <td className={hasStateFilter ? styles.filter : undefined}>{element.federalState}</td>
+            <td className={filterIf("hasBicycleParking")}>
                 <FontAwesomeIcon icon={element.hasBicycleParking ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasCarRental")}>
+            </td>
+            <td className={filterIf("hasCarRental")}>
                 <FontAwesomeIcon icon={element.hasCarRental ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasDBLounge")}>
+            </td>
+            <td className={filterIf("hasDBLounge")}>
                 <FontAwesomeIcon icon={element.hasDBLounge ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasLocalPublicTransport")}>
+            </td>
+            <td className={filterIf("hasLocalPublicTransport")}>
                 <FontAwesomeIcon icon={element.hasLocalPublicTransport ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasLockerSystem")}>
+            </td>
+            <td className={filterIf("hasLockerSystem")}>
                 <FontAwesomeIcon icon={element.hasLockerSystem ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasLostAndFound")}>
+            </td>
+            <td className={filterIf("hasLostAndFound")}>
                 <FontAwesomeIcon icon={element.hasLostAndFound ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasParking")}>
+            </td>
+            <td className={filterIf("hasParking")}>
                 <FontAwesomeIcon icon={element.hasParking ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasPublicFacilities")}>
+            </td>
+            <td className={filterIf("hasPublicFacilities")}>
                 <FontAwesomeIcon icon={element.hasPublicFacilities ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasRailwayMission")}>
+            </td>
+            <td className={filterIf("hasRailwayMission")}>
                 <FontAwesomeIcon icon={element.hasRailwayMission ? faCheck : faClose}/>
-            </span>
-            <span>
+            </td>
+            <td>
                 <FontAwesomeIcon icon={
                     element.hasSteplessAccess === "yes"
                         ? faCheck
@@ -61,30 +61,31 @@ async function StationView({hasQueryFilter, hasStateFilter, attributeFilter, ...
                             ? faClose
                             : faCircle
                 }/>
-            </span>
-            <span className={filterIf("hasTaxiRank")}>
+            </td>
+            <td className={filterIf("hasTaxiRank")}>
                 <FontAwesomeIcon icon={element.hasTaxiRank ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasTravelCenter")}>
+            </td>
+            <td className={filterIf("hasTravelCenter")}>
                 <FontAwesomeIcon icon={element.hasTravelCenter ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasTravelNecessities")}>
+            </td>
+            <td className={filterIf("hasTravelNecessities")}>
                 <FontAwesomeIcon icon={element.hasTravelNecessities ? faCheck : faClose}/>
-            </span>
-            <span className={filterIf("hasWiFi")}>
+            </td>
+            <td className={filterIf("hasWiFi")}>
                 <FontAwesomeIcon icon={element.hasWiFi ? faCheck : faClose}/>
-            </span>
-            <span>{element.category}</span>
-            <span>{element.priceCategory}</span>
-            <span>
+            </td>
+            <td>{element.category}</td>
+            <td>{element.priceCategory}</td>
+            <td>
                 <FontAwesomeIcon icon={element.hasMobilityService === "no" ? faClose : faCheck}/>
                 {element.hasMobilityService === "Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)"
-                    ? "only by appointment"
+                    ? <span>only by appointment</span>
                     : element.hasMobilityService === "Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten"
-                        ? "advance registration is requested"
+                        ? <span>advance registration is requested</span>
                         : undefined}
-            </span>
-        </Link>
+            </td>
+            {/*</Link>*/}
+        </TableRow>
     );
 }
 
@@ -92,7 +93,7 @@ type Props = {
     searchParams: Promise<SearchParams>,
 }
 
-export default async function Page({searchParams}: Props) {
+export default async function Page({searchParams}: Readonly<Props>) {
 
     const {query, states, attributes, mode} = await searchParams;
 
@@ -105,7 +106,7 @@ export default async function Page({searchParams}: Props) {
         filterQuery?: string[],
         filterStates?: string[],
         filterAttributes?: string[],
-        filterMode?: "and" | "or" | undefined,
+        filterMode?: "and" | "or",
     }) {
         "use server";
 
@@ -173,35 +174,39 @@ export default async function Page({searchParams}: Props) {
         "use server";
 
         return (
-            <div className={styles.stations}>
-                <div className={`${styles.station} ${styles.header}`}>
-                    <span>Name</span>
-                    <span>Federal State</span>
-                    <span>Bicycle Parking</span>
-                    <span>Car Rental</span>
-                    <span>DB Lounge</span>
-                    <span>Local Public Transport</span>
-                    <span>Locker System</span>
-                    <span>Lost And Found</span>
-                    <span>Parking</span>
-                    <span>Public Facilities</span>
-                    <span>Railway Mission</span>
-                    <span>Stepless Access</span>
-                    <span>Taxi Rank</span>
-                    <span>Travel Center</span>
-                    <span>Travel Necessities</span>
-                    <span>WiFi</span>
-                    <span>Category</span>
-                    <span>Price Category</span>
-                    <span>Mobility Service</span>
-                </div>
+            <table className={styles.stations}>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Federal State</th>
+                    <th>Bicycle Parking</th>
+                    <th>Car Rental</th>
+                    <th>DB Lounge</th>
+                    <th>Local Public Transport</th>
+                    <th>Locker System</th>
+                    <th>Lost And Found</th>
+                    <th>Parking</th>
+                    <th>Public Facilities</th>
+                    <th>Railway Mission</th>
+                    <th>Stepless Access</th>
+                    <th>Taxi Rank</th>
+                    <th>Travel Center</th>
+                    <th>Travel Necessities</th>
+                    <th>WiFi</th>
+                    <th>Category</th>
+                    <th>Price Category</th>
+                    <th>Mobility Service</th>
+                </tr>
+                </thead>
+                <tbody>
                 {elements.map(element => (
                     <StationView key={element.number}
                                  hasQueryFilter={filterQuery !== undefined}
                                  hasStateFilter={filterStates !== undefined}
                                  attributeFilter={filterAttributes} {...element}/>
                 ))}
-            </div>
+                </tbody>
+            </table>
         );
     }
 

@@ -13,7 +13,7 @@ type Props<T, E = undefined> = {
 const SKIP_PAGE_COUNT = 5;
 const HALF_SKIP_PAGE_COUNT = 2;
 
-export function PageView<T, E>({pageAction, renderAction, extra}: Props<T, E>) {
+export function PageView<T, E>({pageAction, renderAction, extra}: Readonly<Props<T, E>>) {
 
     const [index, setIndex] = useState(0);
     const [data, setData] = useState<{ count: number, content: ReactNode }>();

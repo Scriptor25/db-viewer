@@ -1,10 +1,6 @@
 table.stations {
-  width: fit-content;
-
-  @media(max-width: 2600px) {
-    min-width: 100%;
-    width: max-content;
-  }
+  min-width: 100%;
+  width: max-content;
 
   tr {
     td {
@@ -52,11 +48,45 @@ table.stations {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
 }
 
 .filter {
   color: var(--color-accent);
   font-weight: bold;
+}
+
+.paging {
+  padding: 1rem 0;
+}
+
+.heading {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  width: 100%;
+
+  &:before {
+    display: inline-block;
+    content: "";
+    width: 4rem;
+    height: 3px;
+    background: var(--color-accent);
+  }
+
+  &:after {
+    display: inline-block;
+    content: "";
+    width: 100%;
+    height: 3px;
+    background: var(--color-accent);
+  }
+
+  & h1 {
+    flex: 0 0 auto;
+  }
 }

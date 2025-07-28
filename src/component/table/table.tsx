@@ -41,7 +41,8 @@ export type DataTableRowProps<T> = {
 
 export type DataTableProps<T, O extends Order<T>> = {
     template: Template<T, O>,
-    fldId: keyof T,
+    id: keyof T,
+    active?: (keyof T)[],
     data: DataTableRowProps<T>[],
     className?: string,
 };
@@ -96,7 +97,7 @@ export function DataTableField<T>({field, data, active}: Readonly<DataTableField
 }
 
 export function DataTable<T, O extends Order<T>>(
-    {template, fldId, data, className}: Readonly<DataTableProps<T, O>>,
+    {template, id, active, data, className}: Readonly<DataTableProps<T, O>>,
 ) {
     return (
         <table className={className}>
@@ -111,9 +112,12 @@ export function DataTable<T, O extends Order<T>>(
             </thead>
             <tbody>
             {data.map(({value, row}) => (
-                <TableRow key={value[fldId] as Key | null} {...row}>
+                <TableRow key={value[id] as Key | null} {...row}>
                     {template.map(field => (
-                        <DataTableField key={String(field.key)} field={field} data={value[field.key]} active/>
+                        <DataTableField key={String(field.key)}
+                                        field={field}
+                                        data={value[field.key]}
+                                        active={active?.includes(field.key)}/>
                     ))}
                 </TableRow>
             ))}

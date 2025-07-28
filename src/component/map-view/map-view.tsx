@@ -1,6 +1,6 @@
 "use client";
 
-import {Marker, Popup} from "maplibre-gl";
+import {Marker, Popup, RequestParameters} from "maplibre-gl";
 import {DetailedHTMLProps, HTMLAttributes, ReactNode, useEffect, useState} from "react";
 import {createRoot} from "react-dom/client";
 import {Map, MapRef} from "react-map-gl/maplibre";
@@ -67,7 +67,12 @@ export function MapView({center, bounds, zoom, pins, ...props}: Props) {
                  }}
                  cancelPendingTileRequestsWhileZooming={false}
                  maxBounds={bounds}
-                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json">
+                 mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+                 transformRequest={(url, resourceType): RequestParameters | undefined => {
+                     return {
+                         url: `${window.location.origin}/api/proxy?url=${encodeURIComponent(url)}`,
+                     };
+                 }}>
             </Map>
         </div>
     );

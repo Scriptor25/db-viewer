@@ -39,19 +39,20 @@ const ATTRIBUTES: [string, string][] = [
     ["hasWiFi", "WiFi"],
 ];
 
-type Params = {
+type Props = {
     query?: string,
     states: string[],
     attributes: string[],
     mode?: "and" | "or",
+    className?: string,
 }
 
-export function FilterView({query, states, attributes, mode}: Readonly<Params>) {
+export function FilterView({query, states, attributes, mode, className}: Readonly<Props>) {
 
     const router = useRouter();
 
     return (
-        <form className={styles.container}
+        <form className={`${styles.container} ${className ?? ""}`}
               onSubmit={event => {
                   event.preventDefault();
 

@@ -107,6 +107,14 @@ export default async function Page({searchParams}: Readonly<PageProps>) {
     async function render(elements: StationData[]) {
         "use server";
 
+        const active: (keyof StationProps)[] = [];
+        if (filterQuery)
+            active.push("name");
+        if (filterStates)
+            active.push("federalState");
+        if (filterAttributes)
+            active.push(...(filterAttributes as (keyof StationProps)[]));
+
         return (
             <DataTable<StationProps, [
                 "name",
@@ -128,82 +136,90 @@ export default async function Page({searchParams}: Readonly<PageProps>) {
                 "hasMobilityService",
                 "category",
                 "priceCategory",
-            ]> template={[
-                {key: "name", label: "Name", type: "string"},
-                {key: "federalState", label: "Federal State", type: "string"},
-                {key: "hasBicycleParking", label: "Bicycle Parking", type: "boolean"},
-                {key: "hasCarRental", label: "Car Rental", type: "boolean"},
-                {key: "hasDBLounge", label: "DB Lounge", type: "boolean"},
-                {key: "hasLocalPublicTransport", label: "Local Public Transport", type: "boolean"},
-                {key: "hasLockerSystem", label: "Locker System", type: "boolean"},
-                {key: "hasLostAndFound", label: "Lost and Found", type: "boolean"},
-                {key: "hasParking", label: "Parking", type: "boolean"},
-                {key: "hasPublicFacilities", label: "Public Facilities", type: "boolean"},
-                {key: "hasRailwayMission", label: "Railway Mission", type: "boolean"},
-                {
-                    key: "hasSteplessAccess",
-                    label: "Stepless Access",
-                    type: "tristate",
-                    "0": "no",
-                    "1": "yes",
-                    "2": "partial",
-                },
-                {key: "hasTaxiRank", label: "Taxi Rank", type: "boolean"},
-                {key: "hasTravelCenter", label: "Travel Center", type: "boolean"},
-                {key: "hasTravelNecessities", label: "Travel Necessities", type: "boolean"},
-                {key: "hasWiFi", label: "WiFi", type: "boolean"},
-                {
-                    key: "hasMobilityService",
-                    label: "Mobility Service",
-                    type: "custom",
-                    render: async ({data}) => {
-                        "use server";
-
-                        let text;
-                        switch (data) {
-                            case "Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)":
-                                text = <span>only by appointment</span>;
-                                break;
-                            case "Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten":
-                                text = <span>advance registration is requested</span>;
-                                break;
-                            default:
-                                text = undefined;
-                                break;
-                        }
-
-                        return (
-                            <span className={styles.custom}>
-                                <FontAwesomeIcon icon={data === "no" ? faClose : faCheck}/>
-                                {text}
-                            </span>
-                        );
+            ]>
+                template={[
+                    {key: "name", label: "Name", type: "string"},
+                    {key: "federalState", label: "Federal State", type: "string"},
+                    {key: "hasBicycleParking", label: "Bicycle Parking", type: "boolean"},
+                    {key: "hasCarRental", label: "Car Rental", type: "boolean"},
+                    {key: "hasDBLounge", label: "DB Lounge", type: "boolean"},
+                    {key: "hasLocalPublicTransport", label: "Local Public Transport", type: "boolean"},
+                    {key: "hasLockerSystem", label: "Locker System", type: "boolean"},
+                    {key: "hasLostAndFound", label: "Lost and Found", type: "boolean"},
+                    {key: "hasParking", label: "Parking", type: "boolean"},
+                    {key: "hasPublicFacilities", label: "Public Facilities", type: "boolean"},
+                    {key: "hasRailwayMission", label: "Railway Mission", type: "boolean"},
+                    {
+                        key: "hasSteplessAccess",
+                        label: "Stepless Access",
+                        type: "tristate",
+                        "0": "no",
+                        "1": "yes",
+                        "2": "partial",
                     },
-                },
-                {key: "category", label: "Category", type: "number"},
-                {key: "priceCategory", label: "Price Category", type: "number"},
-            ] as const} fldId="number" data={elements.map(element => ({
-                value: {
-                    hasQueryFilter: filterQuery !== undefined,
-                    hasStateFilter: filterStates !== undefined,
-                    attributeFilter: filterAttributes,
-                    ...element,
-                },
-                row: {
-                    href: `/station/${element.number}`,
-                },
-            } as DataTableRowProps<StationProps>))} className={styles.stations}/>
+                    {key: "hasTaxiRank", label: "Taxi Rank", type: "boolean"},
+                    {key: "hasTravelCenter", label: "Travel Center", type: "boolean"},
+                    {key: "hasTravelNecessities", label: "Travel Necessities", type: "boolean"},
+                    {key: "hasWiFi", label: "WiFi", type: "boolean"},
+                    {
+                        key: "hasMobilityService",
+                        label: "Mobility Service",
+                        type: "custom",
+                        render: async ({data}) => {
+                            "use server";
+
+                            let text;
+                            switch (data) {
+                                case "Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)":
+                                    text = <span>only by appointment</span>;
+                                    break;
+                                case "Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten":
+                                    text = <span>advance registration is requested</span>;
+                                    break;
+                                default:
+                                    text = undefined;
+                                    break;
+                            }
+
+                            return (
+                                <span className={styles.custom}>
+                                    <FontAwesomeIcon icon={data === "no" ? faClose : faCheck}/>
+                                    {text}
+                                </span>
+                            );
+                        },
+                    },
+                    {key: "category", label: "Category", type: "number"},
+                    {key: "priceCategory", label: "Price Category", type: "number"},
+                ] as const}
+                id="number"
+                active={active}
+                data={elements.map(element => ({
+                    value: {
+                        hasQueryFilter: filterQuery !== undefined,
+                        hasStateFilter: filterStates !== undefined,
+                        attributeFilter: filterAttributes,
+                        ...element,
+                    },
+                    row: {
+                        href: `/station/${element.number}`,
+                    },
+                } as DataTableRowProps<StationProps>))}
+                className={styles.stations}/>
         );
     }
 
     return (
         <main>
+            <div className={styles.heading}><h1>DB Viewer</h1></div>
             <FilterView query={query as string | undefined}
                         states={filterStates ?? []}
                         attributes={filterAttributes ?? []}
-                        mode={filterMode}/>
+                        mode={filterMode}
+                        className={styles.paging}/>
             <PageView pageAction={page}
                       renderAction={render}
+                      className={styles.paging}
                       extra={{
                           filterQuery,
                           filterStates,

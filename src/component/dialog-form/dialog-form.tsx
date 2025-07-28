@@ -27,15 +27,18 @@ export function DialogForm({ref, className, children}: PropsWithChildren<Props>)
     }));
 
     return (
-        <dialog ref={dialogRef} className={`${styles.dialog} ${className ?? ""}`} onClick={event => {
-            if (event.target === event.currentTarget)
-                dialogRef.current?.close("");
-        }} onClose={event => {
-            const value = event.currentTarget.returnValue;
-            if (value.length > 0) {
-                consumer?.(value);
-            }
-        }}>
+        <dialog ref={dialogRef}
+                className={`${styles.dialog} ${className ?? ""}`}
+                onClick={event => {
+                    if (event.target === event.currentTarget)
+                        dialogRef.current?.close("");
+                }}
+                onClose={event => {
+                    const value = event.currentTarget.returnValue;
+                    if (value.length > 0) {
+                        consumer?.(value);
+                    }
+                }}>
             <form method="dialog">
                 <button className={styles.close} type="submit" value="">
                     <FontAwesomeIcon icon={faClose} size="xl"/>

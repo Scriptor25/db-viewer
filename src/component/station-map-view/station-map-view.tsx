@@ -17,7 +17,7 @@ type Props = {
     status: StationFacilityStatusData | null,
 }
 
-export function StationMapView({station, status}: Props) {
+export function StationMapView({station, status}: Readonly<Props>) {
 
     const {openDialog} = useContext(ServiceDialogContext);
 
@@ -37,11 +37,25 @@ export function StationMapView({station, status}: Props) {
 
     const pins = facilities
         .filter(facility => facility.geocoordX !== undefined && facility.geocoordY !== undefined)
-        .map(facility => ({
-            location: [facility.geocoordX!, facility.geocoordY!],
-            content: <FacilityPopup openDialogAction={openDialog} facility={facility}/>,
-            color: facility.state === "INACTIVE" ? "#bc0d0d" : facility.state === "ACTIVE" ? "#378725" : "#cccccc",
-        } as Pin));
+        .map(facility => {
+            let color: string;
+            switch (facility.state) {
+                case "INACTIVE":
+                    color = "#bc0d0d";
+                    break;
+                case "ACTIVE":
+                    color = "#378725";
+                    break;
+                default:
+                    color = "#cccccc";
+                    break;
+            }
+            return {
+                location: [facility.geocoordX!, facility.geocoordY!],
+                content: <FacilityPopup openDialogAction={openDialog} facility={facility}/>,
+                color: color,
+            } as Pin;
+        });
 
     if (center) {
         pins.push({

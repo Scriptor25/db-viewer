@@ -22,7 +22,7 @@ export function FacilityPopup(
             geocoordY,
         },
         openDialogAction,
-    }: Props,
+    }: Readonly<Props>,
 ) {
     return (
         <div className={styles.popup}>
@@ -36,7 +36,9 @@ export function FacilityPopup(
             </p>
             <hr/>
             <p className={styles.link}>
-                <a onClick={() => openDialogAction([geocoordX!, geocoordY!])}>{geocoordX}, {geocoordY}</a>
+                <button className="link" onClick={() => openDialogAction([geocoordX!, geocoordY!])}>
+                    {geocoordX}, {geocoordY}
+                </button>
             </p>
         </div>
     );

@@ -3,7 +3,7 @@ import {IconProp} from "@fortawesome/fontawesome-svg-core";
 import {faCircle} from "@fortawesome/free-regular-svg-icons";
 import {faCheck, faClose} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {ComponentType, ReactNode} from "react";
+import {ComponentType, Key, ReactNode} from "react";
 
 import styles from "./table.module.scss";
 
@@ -41,11 +41,12 @@ export type DataTableRowProps<T> = {
 
 export type DataTableProps<T, O extends Order<T>> = {
     template: Template<T, O>,
+    fldId: keyof T,
     data: DataTableRowProps<T>[],
     className?: string,
 };
 
-export function DataTableField<T>({field, data, active}: DataTableFieldProps<T>) {
+export function DataTableField<T>({field, data, active}: Readonly<DataTableFieldProps<T>>) {
 
     let content: ReactNode;
     let className: string | undefined;
@@ -95,7 +96,7 @@ export function DataTableField<T>({field, data, active}: DataTableFieldProps<T>)
 }
 
 export function DataTable<T, O extends Order<T>>(
-    {template, data, className}: DataTableProps<T, O>,
+    {template, fldId, data, className}: Readonly<DataTableProps<T, O>>,
 ) {
     return (
         <table className={className}>
@@ -109,8 +110,8 @@ export function DataTable<T, O extends Order<T>>(
             </tr>
             </thead>
             <tbody>
-            {data.map(({value, row}, index) => (
-                <TableRow key={index} {...row}>
+            {data.map(({value, row}) => (
+                <TableRow key={value[fldId] as Key | null} {...row}>
                     {template.map(field => (
                         <DataTableField key={String(field.key)} field={field} data={value[field.key]} active/>
                     ))}

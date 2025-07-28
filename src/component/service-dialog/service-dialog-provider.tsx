@@ -9,7 +9,7 @@ import {PropsWithChildren, useRef} from "react";
 
 import styles from "./service-dialog.module.scss";
 
-export function ServiceDialogProvider({children}: PropsWithChildren) {
+export function ServiceDialogProvider({children}: Readonly<PropsWithChildren>) {
     const dialogFormRef = useRef<DialogFormRef>(null);
 
     return (
@@ -39,7 +39,7 @@ export function ServiceDialogProvider({children}: PropsWithChildren) {
             </DialogForm>
             <ServiceDialogContext value={{
                 openDialog: location => {
-                    dialogFormRef.current!.open(value => {
+                    dialogFormRef.current?.open(value => {
                         let href: string;
                         switch (value) {
                             case "open-street-maps":
@@ -60,7 +60,7 @@ export function ServiceDialogProvider({children}: PropsWithChildren) {
                             default:
                                 return;
                         }
-                        window.open(href, "_blank");
+                        window.open(href, "_blank", "noopener,noreferrer");
                     });
                 },
             }}>

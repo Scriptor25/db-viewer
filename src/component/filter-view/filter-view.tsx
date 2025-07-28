@@ -1,6 +1,7 @@
 "use client";
 
 import {useRouter} from "next/navigation";
+
 import styles from "./filter-view.module.scss";
 
 const STATES: [string, string][] = [
@@ -45,12 +46,31 @@ type Params = {
     mode?: "and" | "or",
 }
 
-export function FilterView({query, states, attributes, mode}: Params) {
+export function FilterView({query, states, attributes, mode}: Readonly<Params>) {
 
     const router = useRouter();
 
     return (
-        <form className={styles.container} onReset={() => router.replace("?")} suppressHydrationWarning>
+        <form className={styles.container}
+              onSubmit={event => {
+                  event.preventDefault();
+
+                  const data = new FormData(event.currentTarget);
+                  const params = new URLSearchParams();
+
+                  if (data.get("query"))
+                      params.append("query", data.get("query") as string);
+                  if (data.get("mode"))
+                      params.append("mode", data.get("mode") as string);
+                  for (const state of data.getAll("states"))
+                      params.append("states", state as string);
+                  for (const attribute of data.getAll("attributes"))
+                      params.append("attributes", attribute as string);
+
+                  router.push(`?${params}`);
+              }}
+              onReset={() => router.replace("?")}
+              suppressHydrationWarning>
             <fieldset className={styles.group}>
                 <legend>Station Name</legend>
                 <label>

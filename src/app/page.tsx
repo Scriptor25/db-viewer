@@ -159,21 +159,30 @@ export default async function Page({searchParams}: Readonly<PageProps>) {
                     render: async ({data}) => {
                         "use server";
 
+                        let text;
+                        switch (data) {
+                            case "Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)":
+                                text = <span>only by appointment</span>;
+                                break;
+                            case "Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten":
+                                text = <span>advance registration is requested</span>;
+                                break;
+                            default:
+                                text = undefined;
+                                break;
+                        }
+
                         return (
                             <span className={styles.custom}>
                                 <FontAwesomeIcon icon={data === "no" ? faClose : faCheck}/>
-                                {data === "Nur nach Voranmeldung unter 030 65 21 28 88 (Ortstarif)"
-                                    ? <span>only by appointment</span>
-                                    : data === "Ja, um Voranmeldung unter 030 65 21 28 88 (Ortstarif) wird gebeten"
-                                        ? <span>advance registration is requested</span>
-                                        : undefined}
+                                {text}
                             </span>
                         );
                     },
                 },
                 {key: "category", label: "Category", type: "number"},
                 {key: "priceCategory", label: "Price Category", type: "number"},
-            ] as const} data={elements.map(element => ({
+            ] as const} fldId="number" data={elements.map(element => ({
                 value: {
                     hasQueryFilter: filterQuery !== undefined,
                     hasStateFilter: filterStates !== undefined,

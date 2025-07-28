@@ -13,7 +13,7 @@ type Props = {
     center: LngLat,
 }
 
-export function StationPopup({openDialogAction, station, center}: Props) {
+export function StationPopup({openDialogAction, station, center}: Readonly<Props>) {
     return (
         <div className={styles.popup}>
             <p className={styles.header}>
@@ -22,7 +22,9 @@ export function StationPopup({openDialogAction, station, center}: Props) {
             </p>
             <hr/>
             <p className={styles.link}>
-                <a onClick={() => openDialogAction(center)}>{center[0]}, {center[1]}</a>
+                <button className="link" onClick={() => openDialogAction(center)}>
+                    {center[0]}, {center[1]}
+                </button>
             </p>
         </div>
     );

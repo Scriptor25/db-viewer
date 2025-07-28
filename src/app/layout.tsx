@@ -25,6 +25,7 @@ export default function RootLayout({children}: Readonly<{ children: ReactNode }>
         <html lang="de" className={font.className}>
         <head>
             <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+            <title>DB Viewer</title>
         </head>
         <body>
         {children}

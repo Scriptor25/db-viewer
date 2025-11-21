@@ -12,6 +12,8 @@
 
     padding: 1rem;
     border: 1px solid var(--color-border);
+
+    max-width: 100%;
   }
 }
 
@@ -66,8 +68,13 @@
 }
 
 .status {
+  fieldset {
+    overflow: auto;
+  }
+
   table {
     border-collapse: collapse;
+    width: 100%;
 
     th {
       text-align: left;

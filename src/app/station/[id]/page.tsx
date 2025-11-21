@@ -70,6 +70,14 @@ function ScheduleRangeView({ schedule }: Readonly<{ schedule?: ScheduleRange }>)
     );
 }
 
+function cleanTel(tel: string): string {
+    tel = tel.replaceAll(/\D/g, "");
+    if (tel.startsWith("0")) {
+        tel = `+49${tel.slice(1)}`;
+    }
+    return tel;
+}
+
 export default async function Page({ params }: Readonly<Props>) {
 
     const { id } = await params;
@@ -95,7 +103,22 @@ export default async function Page({ params }: Readonly<Props>) {
             </fieldset>
             <fieldset className={styles.status}>
                 <legend><h2>Status</h2></legend>
+
                 <p>responsibility: {station.aufgabentraeger.name} ({station.aufgabentraeger.shortName})</p>
+
+                <p>ifopt: {station.ifopt}</p>
+
+                <p>mailing address: {station.mailingAddress.street} {station.mailingAddress.houseNumber} {station.mailingAddress.zipcode} {station.mailingAddress.city}</p>
+
+                <p>product line: {station.productLine.productLine} / {station.productLine.segment}</p>
+
+                <p>time table office: <Link href={`mailto:${station.timeTableOffice.email}`}>{station.timeTableOffice.name}</Link></p>
+
+                <p>station management: #{station.stationManagement.number} &mdash; {station.stationManagement.name}</p>
+
+                <p>service center: #{station.szentrale.number} &mdash; {station.szentrale.name} {station.szentrale.publicPhoneNumber && <>(<Link href={`tel:${cleanTel(station.szentrale.publicPhoneNumber)}`}>{station.szentrale.publicPhoneNumber}</Link>)</>}</p>
+
+                {station.wirelessLan && <p>wireless lan: {station.wirelessLan.product} {station.wirelessLan.amount} {station.wirelessLan.installDate}</p>}
 
                 <fieldset>
                     <legend>eva</legend>
@@ -149,27 +172,13 @@ export default async function Page({ params }: Readonly<Props>) {
                     </table>
                 </fieldset>
 
-                <p>IFOPT: {station.ifopt}</p>
-
-                <p>mailing address: {station.mailingAddress.street} {station.mailingAddress.houseNumber} {station.mailingAddress.zipcode} {station.mailingAddress.city}</p>
-
-                <p>product line: {station.productLine.productLine} / {station.productLine.segment}</p>
-
-                <p>time table office: <Link href={`mailto:${station.timeTableOffice.email}`}>{station.timeTableOffice.name}</Link></p>
-
-                <p>station management: #{station.stationManagement.number} &mdash; {station.stationManagement.name}</p>
-
-                <p>service center: #{station.szentrale.number} &mdash; {station.szentrale.name} ({station.szentrale.publicPhoneNumber})</p>
-
-                {station.wirelessLan && <p>wireless lan: {station.wirelessLan.product} {station.wirelessLan.amount} {station.wirelessLan.installDate}</p>}
-
                 <fieldset>
-                    <legend>db information availability</legend>
+                    <legend>db information</legend>
                     <ScheduleView schedule={station.DBinformation?.availability} />
                 </fieldset>
 
                 <fieldset>
-                    <legend>local service staff availability</legend>
+                    <legend>local service staff</legend>
                     <ScheduleView schedule={station.localServiceStaff?.availability} />
                 </fieldset>
 

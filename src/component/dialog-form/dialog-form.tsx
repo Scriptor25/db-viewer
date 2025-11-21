@@ -1,8 +1,8 @@
 "use client";
 
-import {faClose} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {PropsWithChildren, Ref, useImperativeHandle, useRef, useState} from "react";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { PropsWithChildren, Ref, useImperativeHandle, useRef, useState } from "react";
 import styles from "./dialog-form.module.scss";
 
 export type DialogFormRef = {
@@ -14,7 +14,7 @@ type Props = {
     className?: string,
 }
 
-export function DialogForm({ref, className, children}: PropsWithChildren<Props>) {
+export function DialogForm({ ref, className, children }: PropsWithChildren<Props>) {
 
     const dialogRef = useRef<HTMLDialogElement>(null);
     const [consumer, setConsumer] = useState<(value: string) => void>();
@@ -27,21 +27,22 @@ export function DialogForm({ref, className, children}: PropsWithChildren<Props>)
     }));
 
     return (
-        <dialog ref={dialogRef}
-                className={`${styles.dialog} ${className ?? ""}`}
-                onClick={event => {
-                    if (event.target === event.currentTarget)
-                        dialogRef.current?.close("");
-                }}
-                onClose={event => {
-                    const value = event.currentTarget.returnValue;
-                    if (value.length > 0) {
-                        consumer?.(value);
-                    }
-                }}>
+        <dialog
+            ref={dialogRef}
+            className={`${styles.dialog} ${className ?? ""}`}
+            onClick={event => {
+                if (event.target === event.currentTarget)
+                    dialogRef.current?.close("");
+            }}
+            onClose={event => {
+                const value = event.currentTarget.returnValue;
+                if (value.length > 0) {
+                    consumer?.(value);
+                }
+            }}>
             <form method="dialog">
                 <button className={styles.close} type="submit" value="">
-                    <FontAwesomeIcon icon={faClose} size="xl"/>
+                    <FontAwesomeIcon icon={faClose} size="xl" />
                 </button>
                 {children}
             </form>

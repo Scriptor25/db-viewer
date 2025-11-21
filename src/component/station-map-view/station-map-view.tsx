@@ -1,25 +1,25 @@
 "use client";
 
-import {StationFacilityStatusData} from "@/api/fasta";
-import {StationData} from "@/api/stada";
+import { StationFacilityStatusData } from "@/api/fasta";
+import { StationData } from "@/api/stada";
 import styles from "@/app/station/[id]/page.module.scss";
-import {FacilityPopup} from "@/component/facility-popup/facility-popup";
-import {LngLat, MapView, Pin} from "@/component/map-view/map-view";
-import {ServiceDialogContext} from "@/component/service-dialog/service-dialog-context";
-import {StationPopup} from "@/component/station-popup/station-popup";
-import {useContext} from "react";
+import { FacilityPopup } from "@/component/facility-popup/facility-popup";
+import { LngLat, MapView, Pin } from "@/component/map-view/map-view";
+import { ServiceDialogContext } from "@/component/service-dialog/service-dialog-context";
+import { StationPopup } from "@/component/station-popup/station-popup";
+import { useContext } from "react";
 
 const PAD_X = 0.002;
 const PAD_Y = 0.001;
 
-type Props = {
+interface Props {
     station: StationData | null,
     status: StationFacilityStatusData | null,
-}
+};
 
-export function StationMapView({station, status}: Readonly<Props>) {
+export function StationMapView({ station, status }: Readonly<Props>) {
 
-    const {openDialog} = useContext(ServiceDialogContext);
+    const { openDialog } = useContext(ServiceDialogContext);
 
     const facilities = status?.facilities ?? [];
 
@@ -52,7 +52,7 @@ export function StationMapView({station, status}: Readonly<Props>) {
             }
             return {
                 location: [facility.geocoordX!, facility.geocoordY!],
-                content: <FacilityPopup openDialogAction={openDialog} facility={facility}/>,
+                content: <FacilityPopup openDialogAction={openDialog} facility={facility} />,
                 color: color,
             } as Pin;
         });
@@ -60,7 +60,7 @@ export function StationMapView({station, status}: Readonly<Props>) {
     if (center) {
         pins.push({
             location: center,
-            content: <StationPopup openDialogAction={openDialog} station={station} center={center}/>,
+            content: <StationPopup openDialogAction={openDialog} station={station} center={center} />,
         } as Pin);
     }
 
@@ -82,5 +82,5 @@ export function StationMapView({station, status}: Readonly<Props>) {
             bounds![1][1] = pin.location[1] + PAD_Y;
     }
 
-    return <MapView center={center} bounds={bounds} pins={pins} className={styles.map}/>;
+    return <MapView center={center} bounds={bounds} pins={pins} className={styles.map} />;
 }

@@ -1,19 +1,19 @@
-import {getStationFacilityStatus} from "@/api/fasta";
-import {getStationData} from "@/api/stada";
-import {ReturnButton} from "@/component/return-button/return-button";
+import { getStationFacilityStatus } from "@/api/fasta";
+import { getStationData } from "@/api/stada";
+import { ReturnButton } from "@/component/return-button/return-button";
 
-import {ServiceDialogProvider} from "@/component/service-dialog/service-dialog-provider";
-import {StationMapView} from "@/component/station-map-view/station-map-view";
+import { ServiceDialogProvider } from "@/component/service-dialog/service-dialog-provider";
+import { StationMapView } from "@/component/station-map-view/station-map-view";
 
 import styles from "./page.module.scss";
 
-type Props = {
+interface Props {
     params: Promise<{ id: number }>,
 };
 
-export default async function Page({params}: Readonly<Props>) {
+export default async function Page({ params }: Readonly<Props>) {
 
-    const {id} = await params;
+    const { id } = await params;
 
     const station = await getStationData(id);
     const status = await getStationFacilityStatus(id);
@@ -21,13 +21,13 @@ export default async function Page({params}: Readonly<Props>) {
     return (
         <main className={styles.container}>
             <div className={styles.heading}>
-                <ReturnButton/>
+                <ReturnButton />
                 <h1>{station?.name}</h1>
             </div>
             <fieldset>
                 <legend><h2>Map</h2></legend>
                 <ServiceDialogProvider>
-                    <StationMapView station={station} status={status}/>
+                    <StationMapView station={station} status={status} />
                 </ServiceDialogProvider>
             </fieldset>
             <fieldset>

@@ -1,10 +1,10 @@
 "use client";
 
-import {FacilityStatusData} from "@/api/fasta";
+import { FacilityStatusData } from "@/api/fasta";
 import styles from "@/app/station/[id]/page.module.scss";
-import {LngLat} from "@/component/map-view/map-view";
-import {faElevator, faStairs} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { LngLat } from "@/component/map-view/map-view";
+import { faElevator, faStairs } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Props = {
     facility: FacilityStatusData,
@@ -27,14 +27,14 @@ export function FacilityPopup(
     return (
         <div className={styles.popup}>
             <p className={styles.header}>
-                <FontAwesomeIcon icon={type === "ELEVATOR" ? faElevator : faStairs}/>
+                <FontAwesomeIcon icon={type === "ELEVATOR" ? faElevator : faStairs} />
                 {description}
             </p>
             <p className={styles.content}>
                 <span>{stateExplanation}</span>
                 <span className={styles.italic}>{operatorname}</span>
             </p>
-            <hr/>
+            <hr />
             <p className={styles.link}>
                 <button className="link" onClick={() => openDialogAction([geocoordX!, geocoordY!])}>
                     {geocoordX}, {geocoordY}

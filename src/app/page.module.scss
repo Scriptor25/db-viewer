@@ -30,7 +30,9 @@ table.stations {
         background: var(--color-background);
       }
 
-      &:hover, &:focus, &:active {
+      &:hover,
+      &:focus,
+      &:active {
         background: var(--color-border);
         outline: 2px solid var(--color-outline);
         text-decoration: none;

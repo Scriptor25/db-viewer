@@ -1,15 +1,15 @@
 "use client";
 
-import {DialogForm, DialogFormRef} from "@/component/dialog-form/dialog-form";
-import {ServiceDialogContext} from "@/component/service-dialog/service-dialog-context";
-import {faApple, faGoogle, faMicrosoft} from "@fortawesome/free-brands-svg-icons";
-import {faMap, faMobile} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {PropsWithChildren, useRef} from "react";
+import { DialogForm, DialogFormRef } from "@/component/dialog-form/dialog-form";
+import { ServiceDialogContext } from "@/component/service-dialog/service-dialog-context";
+import { faApple, faGoogle, faMicrosoft } from "@fortawesome/free-brands-svg-icons";
+import { faMap, faMobile } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { PropsWithChildren, useRef } from "react";
 
 import styles from "./service-dialog.module.scss";
 
-export function ServiceDialogProvider({children}: Readonly<PropsWithChildren>) {
+export function ServiceDialogProvider({ children }: Readonly<PropsWithChildren>) {
     const dialogFormRef = useRef<DialogFormRef>(null);
 
     return (
@@ -17,23 +17,23 @@ export function ServiceDialogProvider({children}: Readonly<PropsWithChildren>) {
             <DialogForm ref={dialogFormRef} className={styles.dialog}>
                 <h3>Select Map Service</h3>
                 <button type="submit" value="open-street-maps">
-                    <span><FontAwesomeIcon icon={faMap}/></span>
+                    <span><FontAwesomeIcon icon={faMap} /></span>
                     <span>Open Street Maps</span>
                 </button>
                 <button type="submit" value="google-maps">
-                    <span><FontAwesomeIcon icon={faGoogle}/></span>
+                    <span><FontAwesomeIcon icon={faGoogle} /></span>
                     <span>Google Maps</span>
                 </button>
                 <button type="submit" value="apple-maps">
-                    <span><FontAwesomeIcon icon={faApple}/></span>
+                    <span><FontAwesomeIcon icon={faApple} /></span>
                     <span>Apple Maps</span>
                 </button>
                 <button type="submit" value="bing-maps">
-                    <span><FontAwesomeIcon icon={faMicrosoft}/></span>
+                    <span><FontAwesomeIcon icon={faMicrosoft} /></span>
                     <span>Bing Maps</span>
                 </button>
                 <button type="submit" value="native">
-                    <span><FontAwesomeIcon icon={faMobile}/></span>
+                    <span><FontAwesomeIcon icon={faMobile} /></span>
                     <span>Native</span>
                 </button>
             </DialogForm>

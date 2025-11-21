@@ -18,7 +18,8 @@
   color: inherit;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   color: var(--color-text);
@@ -28,12 +29,23 @@ main {
   padding: 2rem;
 }
 
-h1, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   margin: 0;
   padding: 0;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: bold;
 }
 
@@ -65,12 +77,16 @@ p {
   font-size: 16px;
 }
 
-button, .button {
+button,
+.button {
   background: none;
   border: 1px solid var(--color-border);
   cursor: pointer;
 
-  &:hover, &:focus, &:active, &.selection {
+  &:hover,
+  &:focus,
+  &:active,
+  &.selection {
     background: var(--color-background);
     outline: 1px solid var(--color-outline);
   }
@@ -90,16 +106,16 @@ label {
     gap: 0.5rem;
   }
 
-  &:has(input[type=button]),
-  &:has(input[type=checkbox]),
-  &:has(input[type=color]),
-  &:has(input[type=date]),
-  &:has(input[type=datetime-local]),
-  &:has(input[type=file]),
-  &:has(input[type=image]),
-  &:has(input[type=radio]),
-  &:has(input[type=range]),
-  &:has(input[type=time]) {
+  &:has(input[type="button"]),
+  &:has(input[type="checkbox"]),
+  &:has(input[type="color"]),
+  &:has(input[type="date"]),
+  &:has(input[type="datetime-local"]),
+  &:has(input[type="file"]),
+  &:has(input[type="image"]),
+  &:has(input[type="radio"]),
+  &:has(input[type="range"]),
+  &:has(input[type="time"]) {
     cursor: pointer;
 
     & input {
@@ -107,7 +123,7 @@ label {
     }
   }
 
-  &:has(input[type=text]) {
+  &:has(input[type="text"]) {
     cursor: text;
   }
 }
@@ -116,7 +132,8 @@ input {
   accent-color: var(--color-accent);
 }
 
-a, .link {
+a,
+.link {
   cursor: pointer;
   color: var(--color-text);
   border: none;
@@ -126,7 +143,9 @@ a, .link {
 
   transition: color 0.2s;
 
-  &:hover, &:focus, &:active {
+  &:hover,
+  &:focus,
+  &:active {
     text-decoration: underline;
     color: var(--color-accent);
     outline: none;

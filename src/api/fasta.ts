@@ -1,4 +1,5 @@
-import {fetchJSON, QueryResult} from "@/util/api";
+import { QueryResult, fetchJSON } from "@/util/api";
+import { unstable_cache } from "next/cache";
 
 export type FacilityType = "ESCALATOR" | "ELEVATOR";
 export type FacilityState = "ACTIVE" | "INACTIVE" | "UNKNOWN";
@@ -6,7 +7,7 @@ export type FacilityState = "ACTIVE" | "INACTIVE" | "UNKNOWN";
 /**
  * A facility provided by this API is either a public elevator or escalator located at a German railway station.
  */
-export type FacilityStatusData = {
+export interface FacilityStatusData {
     /**
      * Textual description of the facility.
      */
@@ -45,7 +46,7 @@ export type FacilityStatusData = {
     type: FacilityType,
 };
 
-export type StationFacilityStatusData = {
+export interface StationFacilityStatusData {
     /**
      * Unique identifier of the station.
      */
@@ -57,29 +58,37 @@ export type StationFacilityStatusData = {
     facilities?: FacilityStatusData[],
 };
 
-export async function getAllFacilitiesStatus(query?: {
+export const getAllFacilitiesStatus = (query?: {
     type?: FacilityType[],
     state?: FacilityState[],
     equipmentnumbers?: number[],
     stationnumber?: number,
     area?: [string, string, string, string],
-}): Promise<QueryResult<FacilityStatusData>> {
+}): Promise<QueryResult<FacilityStatusData>> => unstable_cache(async () => {
     const params = new URLSearchParams();
 
     if (query) {
-        if (query.type)
-            for (const value of query.type)
+        if (query.type) {
+            for (const value of query.type) {
                 params.append("type", value);
-        if (query.state)
-            for (const value of query.state)
+            }
+        }
+        if (query.state) {
+            for (const value of query.state) {
                 params.append("state", value);
-        if (query.equipmentnumbers)
-            for (const value of query.equipmentnumbers)
+            }
+        }
+        if (query.equipmentnumbers) {
+            for (const value of query.equipmentnumbers) {
                 params.append("equipmentnumbers", value.toString(10));
-        if (query.stationnumber)
+            }
+        }
+        if (query.stationnumber) {
             params.set("stationnumber", query.stationnumber.toString(10));
-        if (query.area)
+        }
+        if (query.area) {
             params.set("area", query.area.join(","));
+        }
     }
 
     const result = await fetchJSON<FacilityStatusData[], null>(
@@ -91,13 +100,14 @@ export async function getAllFacilitiesStatus(query?: {
             }
         });
 
-    if (!result)
+    if (!result) {
         return {
             limit: 0,
             offset: 0,
             total: 0,
             items: [],
         };
+    }
 
     return {
         limit: result.length,
@@ -105,10 +115,10 @@ export async function getAllFacilitiesStatus(query?: {
         total: result.length,
         items: result,
     };
-}
+}, [JSON.stringify(query)])();
 
-export async function getFacilityStatus(id: number) {
-    return await fetchJSON<FacilityStatusData, null>(
+export const getFacilityStatus = (id: number) => unstable_cache(async () => {
+    return fetchJSON<FacilityStatusData, null>(
         `fasta/v2/facilities/${id}`,
         undefined,
         async response => {
@@ -116,15 +126,15 @@ export async function getFacilityStatus(id: number) {
                 return null;
             }
         });
-}
+}, [`${id}`])();
 
-export async function getStationFacilityStatus(id: number) {
-    return await fetchJSON<StationFacilityStatusData, null>(
+export const getStationFacilityStatus = (id: number) => unstable_cache(async () => {
+    return fetchJSON<StationFacilityStatusData, null>(
         `fasta/v2/stations/${id}`, {
-            next: {revalidate: 3600},
-        }, async response => {
-            if (response.status === 404) {
-                return null;
-            }
-        });
-}
+        next: { revalidate: 3600 },
+    }, async response => {
+        if (response.status === 404) {
+            return null;
+        }
+    });
+}, [`${id}`])();

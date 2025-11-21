@@ -1,34 +1,37 @@
 "use client";
 
-import {useRouter} from "next/navigation";
-import {DetailedHTMLProps, KeyboardEventHandler, MouseEventHandler, TableHTMLAttributes, useCallback} from "react";
+import { useRouter } from "next/navigation";
+import { DetailedHTMLProps, KeyboardEventHandler, MouseEventHandler, TableHTMLAttributes, useCallback } from "react";
 
-export type TableRowProps = {
+export interface TableRowProps extends DetailedHTMLProps<TableHTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement> {
     href?: string,
-} & DetailedHTMLProps<TableHTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement>;
+};
 
-export function TableRow({href, ...props}: TableRowProps) {
+export function TableRow({ href, ...props }: Readonly<TableRowProps>) {
 
     const router = useRouter();
 
     const open = useCallback(() => {
-        if (href)
+        if (href) {
             router.push(href);
+        }
     }, [href, router]);
 
     const openExternal = useCallback(() => {
-        if (href)
+        if (href) {
             window.open(href, "_blank", "noopener,noreferrer");
+        }
     }, [href]);
 
     const handleClick: MouseEventHandler = useCallback(event => {
         event.preventDefault();
         switch (event.button) {
             case 0:
-                if (event.ctrlKey)
+                if (event.ctrlKey) {
                     openExternal();
-                else
+                } else {
                     open();
+                }
                 break;
             case 1:
                 openExternal();
@@ -39,14 +42,15 @@ export function TableRow({href, ...props}: TableRowProps) {
     const handleKeyDown: KeyboardEventHandler = useCallback(event => {
         if (event.key === "Enter") {
             event.preventDefault();
-            if (event.ctrlKey)
+            if (event.ctrlKey) {
                 openExternal();
-            else
+            } else {
                 open();
+            }
         }
     }, [open, openExternal]);
 
     return (
-        <tr onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0} {...props}/>
+        <tr onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0} {...props} />
     );
 }

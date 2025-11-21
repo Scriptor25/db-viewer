@@ -1,9 +1,10 @@
-import {fetchXML, QueryResult} from "@/util/api";
+import { QueryResult, fetchXML } from "@/util/api";
+import { unstable_cache } from "next/cache";
 
 /**
  * An additional message to a given station-based disruption by a specific distributor.
  */
-export type DistributorMessage = {
+export interface DistributorMessage {
     /**
      * Internal text.
      */
@@ -24,12 +25,12 @@ export type DistributorMessage = {
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
     ts: string,
-}
+};
 
 /**
  * A message that is associated with an event, a stop or a trip.
  */
-export type Message = {
+export interface Message {
     /**
      * Code.
      */
@@ -102,13 +103,13 @@ export type Message = {
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. "1404011437" for 14:37 on April the 1st of 2014.
      */
     ts: string,
-}
+};
 
 /**
  * It's a compound data type that contains common data items that characterize a Trip.
  * The contents are represented as a compact 6-tuple in XML.
  */
-export type TripLabel = {
+export interface TripLabel {
     /**
      * Category. Trip category, e.g. "ICE" or "RE".
      */
@@ -129,12 +130,12 @@ export type TripLabel = {
      * Trip type
      */
     t?: "p" | "e" | "z" | "s" | "h" | "n",
-}
+};
 
 /**
  * An event (arrival or departure) that is part of a stop.
  */
-export type Event = {
+export interface Event {
     /**
      * Changed distant endpoint.
      */
@@ -219,12 +220,12 @@ export type Event = {
      * Wing. A sequence of trip id separated by the pipe symbols ('|'). E.g. '-906407760000782942-1403311431'.
      */
     wings?: string,
-}
+};
 
 /**
  * It's information about a connected train at a particular stop.
  */
-export type Connection = {
+export interface Connection {
     /**
      * Connection status.
      * * w - WAITING This (regular) connection is waiting.
@@ -256,12 +257,12 @@ export type Connection = {
      * The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
     ts: string,
-}
+};
 
 /**
  * It's the history of all delay-messages for a stop. This element extends HistoricChange.
  */
-export type HistoricDelay = {
+export interface HistoricDelay {
     /**
      * The arrival event. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
@@ -289,12 +290,12 @@ export type HistoricDelay = {
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
     ts: string,
-}
+};
 
 /**
  * It's the history of all platform-changes for a stop. This element extends HistoricChange.
  */
-export type HistoricPlatformChange = {
+export interface HistoricPlatformChange {
     /**
      * Arrival platform.
      */
@@ -311,13 +312,13 @@ export type HistoricPlatformChange = {
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
     ts: string,
-}
+};
 
 /**
  * A reference trip is another real trip, but it doesn't have its own stops and events. It refers only to its
  * referenced regular trip. The reference trip collects mainly all different attributes of the referenced regular trip.
  */
-export type ReferenceTrip = {
+export interface ReferenceTrip {
     /**
      * The cancellation flag. True means, the reference trip is cancelled.
      */
@@ -346,13 +347,13 @@ export type ReferenceTrip = {
      * The contents are represented as a compact 4-tuple in XML.
      */
     sd: ReferenceTripStop,
-}
+};
 
 /**
  * It's a compound data type that contains common data items that characterize a reference trip.
  * The contents are represented as a compact 3-tuple in XML.
  */
-export type ReferenceTripLabel = {
+export interface ReferenceTripLabel {
     /**
      * Category. Trip category, e.g. "ICE" or "RE".
      */
@@ -361,13 +362,13 @@ export type ReferenceTripLabel = {
      * Trip/train number, e.g. "4523".
      */
     n: string,
-}
+};
 
 /**
  * It's a compound data type that contains common data items that characterize a reference trip stop.
  * The contents are represented as a compact 4-tuple in XML.
  */
-export type ReferenceTripStop = {
+export interface ReferenceTripStop {
     /**
      * The eva number of the correspondent stop of the regular trip.
      */
@@ -384,13 +385,13 @@ export type ReferenceTripStop = {
      * The planned time of the correspondent stop of the regular trip.
      */
     pt: string,
-}
+};
 
 /**
  * A reference trip relation holds how a reference trip is related to a stop, for instance the reference
  * trip starts after the stop. Stop contains a collection of that type, only if reference trips are available.
  */
-export type ReferenceTripRelation = {
+export interface ReferenceTripRelation {
     /**
      * A reference trip is another real trip, but it doesn't have its own stops and events. It refers only to its
      * referenced regular trip. The reference trip collects mainly all different attributes of the referenced regular
@@ -407,12 +408,12 @@ export type ReferenceTripRelation = {
      * * a - AFTER The reference trip starts after that stop.
      */
     rts: "b" | "e" | "c" | "s" | "a",
-}
+};
 
 /**
  * A stop is a part of a Timetable.
  */
-export type TimetableStop = {
+export interface TimetableStop {
     /**
      * Arrival.
      */
@@ -475,12 +476,12 @@ export type TimetableStop = {
      * The contents are represented as a compact 6-tuple in XML.
      */
     tl?: TripLabel,
-}
+};
 
 /**
  * A timetable is made of a set of TimetableStops and a potential Disruption.
  */
-export type TimetableData = {
+export interface TimetableData {
     /**
      * EVA station number.
      */
@@ -497,79 +498,84 @@ export type TimetableData = {
      * Station name.
      */
     station?: string,
-}
+};
 
-export type TimetableStationData = {
+export interface TimetableStationData {
     ds100: string,
     eva: number,
     meta?: string,
     name: string,
     p?: string,
-}
+};
 
-export type MultipleTimetableStationData = {
+export interface MultipleTimetableStationData {
     station: TimetableStationData | TimetableStationData[],
-}
+};
 
 /**
  * @param id station eva number
  */
-export async function getKnownChanges(id: number) {
+export const getKnownChanges = (id: number) => unstable_cache(async () => {
     const result = await fetchXML<{ timetable: TimetableData }>(`timetables/v1/fchg/${id}`);
 
-    if (!result)
+    if (!result) {
         return null;
+    }
 
     return result.timetable;
-}
+}, [`${id}`])();
 
 /**
  * @param id station eva number
  */
-export async function getRecentChanges(id: number) {
+export const getRecentChanges = (id: number) => unstable_cache(async () => {
     const result = await fetchXML<{ timetable: TimetableData }>(`timetables/v1/rchg/${id}`);
 
-    if (!result)
+    if (!result) {
         return null;
+    }
 
     return result.timetable;
-}
+}, [`${id}`])();
 
 /**
  * @param id station eva number
  * @param date format YYMMDD
  * @param hour format HH
  */
-export async function getPlan(id: number, date: string, hour: string) {
+export const getPlan = (id: number, date: string, hour: string) => unstable_cache(async () => {
     const result = await fetchXML<{ timetable: TimetableData }>(`timetables/v1/plan/${id}/${date}/${hour}`);
 
-    if (!result)
+    if (!result) {
         return null;
+    }
 
     return result.timetable;
-}
+}, [`${id}`, date, hour])();
 
 /**
  * @param pattern station name (prefix), eva number, ds100 / rl100 code, wildcard (*)
  */
-export async function getStationsForPattern(pattern: string): Promise<QueryResult<TimetableStationData>> {
+export const getStationsForPattern = (pattern: string): Promise<QueryResult<TimetableStationData>> => unstable_cache(async () => {
     const result = await fetchXML<{ stations: MultipleTimetableStationData }>(`timetables/v1/station/${pattern}`);
 
-    if (!result)
+    if (!result) {
         return {
             limit: 0,
             offset: 0,
             total: 0,
             items: [],
         };
+    }
 
-    if (Array.isArray(result.stations.station))
+    if (Array.isArray(result.stations.station)) {
         return {
             limit: result.stations.station.length,
             offset: 0,
             total: result.stations.station.length,
             items: result.stations.station,
         };
+    }
 
     return {
         limit: 1,
@@ -577,4 +583,4 @@ export async function getStationsForPattern(pattern: string): Promise<QueryResul
         total: 1,
         items: [result.stations.station],
     };
-}
+}, [pattern])();

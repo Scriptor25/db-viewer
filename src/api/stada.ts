@@ -1,6 +1,7 @@
-import {fetchJSON, QueryResult} from "@/util/api";
+import { QueryResult, fetchJSON } from "@/util/api";
+import { unstable_cache } from "next/cache";
 
-export type TimePeriod = {
+export interface TimePeriod {
     /**
      * ^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]
      */
@@ -11,7 +12,7 @@ export type TimePeriod = {
     toTime: string,
 };
 
-export type Schedule = {
+export interface Schedule {
     monday: TimePeriod,
     tuesday: TimePeriod,
     wednesday: TimePeriod,
@@ -22,7 +23,7 @@ export type Schedule = {
     holiday: TimePeriod,
 };
 
-export type ScheduleRange = {
+export interface ScheduleRange {
     monday1: TimePeriod,
     monday2: TimePeriod,
     tuesday1: TimePeriod,
@@ -39,7 +40,7 @@ export type ScheduleRange = {
     sunday2: TimePeriod,
 };
 
-export type Address = {
+export interface Address {
     city: string,
     houseNumber?: string,
     street: string,
@@ -49,7 +50,7 @@ export type Address = {
 /**
  * GEOJSON object of type point. By default, WGS84 is the coordinate system in GEOJSON.
  */
-export type Location = {
+export interface Location {
     /**
      * first value is longitude, second latitude, third altitude (currently not provided)
      */
@@ -60,13 +61,13 @@ export type Location = {
     type: string,
 };
 
-export type RegionalDepartmentData = {
+export interface RegionalDepartmentData {
     number: number,
     name: string,
     shortName: string,
 };
 
-export type StationManagementData = {
+export interface StationManagementData {
     number: number,
     name: string,
 };
@@ -74,7 +75,7 @@ export type StationManagementData = {
 /**
  * 3-S-Centers are 7/24 hours operating centers for german railway stations
  */
-export type SCenterData = {
+export interface SCenterData {
     number: number,
     /**
      * unique identifier of 3-S-Center
@@ -99,7 +100,7 @@ export type SCenterData = {
     stationManagement?: StationManagementData,
 };
 
-export type StationData = {
+export interface StationData {
     DBinformation?: {
         availability: Schedule,
     },
@@ -237,7 +238,7 @@ export type StationData = {
     },
 };
 
-export async function getAllStationsData(query?: {
+export const getAllStationsData = (query?: {
     /**
      * The maximum number of hits to be returned by that query. If 'limit' is set greater than 10000, it will be reset
      * to 10000 internally and only 10000 hits will be returned.
@@ -279,7 +280,7 @@ export async function getAllStationsData(query?: {
      * Allowed values: or, and
      */
     logicaloperator?: "or" | "and",
-}): Promise<QueryResult<StationData>> {
+}): Promise<QueryResult<StationData>> => unstable_cache(async () => {
     const params = new URLSearchParams();
 
     if (query) {
@@ -299,7 +300,7 @@ export async function getAllStationsData(query?: {
             else if (typeof query.category === "number")
                 params.set("category", query.category.toString(10));
             else for (const value of query.category)
-                    params.append("category", typeof value === "number" ? value.toString(10) : value);
+                params.append("category", typeof value === "number" ? value.toString(10) : value);
         }
         if (query.federalstate !== undefined) {
             if (typeof query.federalstate === "string")
@@ -322,12 +323,12 @@ export async function getAllStationsData(query?: {
         result: StationData[],
     }, null>(
         `station-data/v2/stations?${params}`, {
-            next: {revalidate: 3600},
-        }, async response => {
-            if (response.status === 404) {
-                return null;
-            }
-        });
+        next: { revalidate: 3600 },
+    }, async response => {
+        if (response.status === 404) {
+            return null;
+        }
+    });
 
     if (!result)
         return {
@@ -343,9 +344,9 @@ export async function getAllStationsData(query?: {
         total: result.total,
         items: result.result,
     };
-}
+}, [JSON.stringify(query)])();
 
-export async function getStationData(id: number) {
+export const getStationData = (id: number) => unstable_cache(async () => {
     const result = await fetchJSON<{
         limit: number,
         offset: number,
@@ -353,20 +354,20 @@ export async function getStationData(id: number) {
         result: StationData[],
     }, null>(
         `station-data/v2/stations/${id}`, {
-            next: {revalidate: 3600},
-        }, async response => {
-            if (response.status === 404) {
-                return null;
-            }
-        });
+        next: { revalidate: 3600 },
+    }, async response => {
+        if (response.status === 404) {
+            return null;
+        }
+    });
 
     if (!result)
         return null;
 
     return result.result[0];
-}
+}, [`${id}`])();
 
-export async function getAll3SCentersData(query?: {
+export const getAll3SCentersData = (query?: {
     /**
      * The maximum number of hits to be returned by that query. If 'limit' is set greater than 10000,
      * it will be reset to 10000 internally and only 100 hits will be returned.
@@ -377,14 +378,16 @@ export async function getAll3SCentersData(query?: {
      * If this parameter is omitted, it will be set to 0 internally.
      */
     offset?: number,
-}): Promise<QueryResult<SCenterData>> {
+}): Promise<QueryResult<SCenterData>> => unstable_cache(async () => {
     const params = new URLSearchParams();
 
     if (query) {
-        if (query.limit)
+        if (query.limit) {
             params.set("limit", query.limit.toString(10));
-        if (query.offset)
+        }
+        if (query.offset) {
             params.set("offset", query.offset.toString(10));
+        }
     }
 
     const result = await fetchJSON<{
@@ -394,20 +397,21 @@ export async function getAll3SCentersData(query?: {
         result: SCenterData[],
     }, null>(
         `station-data/v2/szentralen?${params}`, {
-            next: {revalidate: 3600},
-        }, async response => {
-            if (response.status === 404) {
-                return null;
-            }
-        });
+        next: { revalidate: 3600 },
+    }, async response => {
+        if (response.status === 404) {
+            return null;
+        }
+    });
 
-    if (!result)
+    if (!result) {
         return {
             limit: 0,
             offset: 0,
             total: 0,
             items: [],
         };
+    }
 
     return {
         limit: result.limit,
@@ -415,9 +419,9 @@ export async function getAll3SCentersData(query?: {
         total: result.total,
         items: result.result,
     };
-}
+}, [JSON.stringify(query)])();
 
-export async function get3SCenterData(id: number) {
+export const get3SCenterData = (id: number) => unstable_cache(async () => {
     const result = await fetchJSON<{
         limit: number,
         offset: number,
@@ -425,15 +429,16 @@ export async function get3SCenterData(id: number) {
         result: SCenterData[],
     }, null>(
         `station-data/v2/szentralen/${id}`, {
-            next: {revalidate: 3600},
-        }, async response => {
-            if (response.status === 404) {
-                return null;
-            }
-        });
+        next: { revalidate: 3600 },
+    }, async response => {
+        if (response.status === 404) {
+            return null;
+        }
+    });
 
-    if (!result)
+    if (!result) {
         return null;
+    }
 
     return result.result[0];
-}
+}, [`${id}`])();

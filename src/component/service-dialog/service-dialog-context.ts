@@ -1,5 +1,5 @@
-import {LngLat} from "@/component/map-view/map-view";
-import {createContext} from "react";
+import { LngLat } from "@/component/map-view/map-view";
+import { createContext } from "react";
 
 type ServiceDialogContextType = {
     openDialog: (location: LngLat) => void,

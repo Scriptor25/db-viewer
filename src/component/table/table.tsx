@@ -1,9 +1,9 @@
-import {TableRow, TableRowProps} from "@/component/table/table-row";
-import {IconProp} from "@fortawesome/fontawesome-svg-core";
-import {faCircle} from "@fortawesome/free-regular-svg-icons";
-import {faCheck, faClose} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {ComponentType, Key, ReactNode} from "react";
+import { TableRow, TableRowProps } from "@/component/table/table-row";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import { faCircle } from "@fortawesome/free-regular-svg-icons";
+import { faCheck, faClose } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ComponentType, Key, ReactNode } from "react";
 
 import styles from "./table.module.scss";
 
@@ -47,7 +47,7 @@ export type DataTableProps<T, O extends Order<T>> = {
     className?: string,
 };
 
-export function DataTableField<T>({field, data, active}: Readonly<DataTableFieldProps<T>>) {
+export function DataTableField<T>({ field, data, active }: Readonly<DataTableFieldProps<T>>) {
 
     let content: ReactNode;
     let className: string | undefined;
@@ -55,7 +55,7 @@ export function DataTableField<T>({field, data, active}: Readonly<DataTableField
     if (data !== undefined)
         switch (field.type) {
             case "boolean":
-                content = <FontAwesomeIcon icon={data ? faCheck : faClose}/>;
+                content = <FontAwesomeIcon icon={data ? faCheck : faClose} />;
                 className = styles.boolean;
                 break;
             case "number":
@@ -77,7 +77,7 @@ export function DataTableField<T>({field, data, active}: Readonly<DataTableField
                     default:
                         throw new Error(`invalid tristate data ${data} for states ${field[0]} -> ${field[1]} -> ${field[2]}`);
                 }
-                content = <FontAwesomeIcon icon={icon}/>;
+                content = <FontAwesomeIcon icon={icon} />;
                 className = styles.tristate;
                 break;
             }
@@ -87,7 +87,7 @@ export function DataTableField<T>({field, data, active}: Readonly<DataTableField
                 break;
             case "custom": {
                 const Render = field.render;
-                content = <Render data={data}/>;
+                content = <Render data={data} />;
                 className = styles.custom;
                 break;
             }
@@ -97,30 +97,30 @@ export function DataTableField<T>({field, data, active}: Readonly<DataTableField
 }
 
 export function DataTable<T, O extends Order<T>>(
-    {template, id, active, data, className}: Readonly<DataTableProps<T, O>>,
+    { template, id, active, data, className }: Readonly<DataTableProps<T, O>>,
 ) {
     return (
         <table className={className}>
             <thead>
-            <tr>
-                {template.map(field => (
-                    <th key={String(field.key)}>
-                        <span>{field.label}</span>
-                    </th>
-                ))}
-            </tr>
+                <tr>
+                    {template.map(field => (
+                        <th key={String(field.key)}>
+                            <span>{field.label}</span>
+                        </th>
+                    ))}
+                </tr>
             </thead>
             <tbody>
-            {data.map(({value, row}) => (
-                <TableRow key={value[id] as Key | null} {...row}>
-                    {template.map(field => (
-                        <DataTableField key={String(field.key)}
-                                        field={field}
-                                        data={value[field.key]}
-                                        active={active?.includes(field.key)}/>
-                    ))}
-                </TableRow>
-            ))}
+                {data.map(({ value, row }) => (
+                    <TableRow key={value[id] as Key | null} {...row}>
+                        {template.map(field => (
+                            <DataTableField key={String(field.key)}
+                                field={field}
+                                data={value[field.key]}
+                                active={active?.includes(field.key)} />
+                        ))}
+                    </TableRow>
+                ))}
             </tbody>
         </table>
     );

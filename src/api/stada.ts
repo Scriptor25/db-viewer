@@ -1,44 +1,45 @@
 import { QueryResult, fetchJSON } from "@/util/api";
 import { createQuery } from "@/util/query";
+import { TimeString } from "@/util/type";
 import { unstable_cache } from "next/cache";
 
 export interface TimePeriod {
     /**
      * ^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]
      */
-    fromTime: string,
+    fromTime: TimeString,
     /**
      * ^([0-9]|0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]
      */
-    toTime: string,
+    toTime: TimeString,
 };
 
 export interface Schedule {
-    monday: TimePeriod,
-    tuesday: TimePeriod,
-    wednesday: TimePeriod,
-    thursday: TimePeriod,
-    friday: TimePeriod,
-    saturday: TimePeriod,
-    sunday: TimePeriod,
-    holiday: TimePeriod,
+    monday?: TimePeriod,
+    tuesday?: TimePeriod,
+    wednesday?: TimePeriod,
+    thursday?: TimePeriod,
+    friday?: TimePeriod,
+    saturday?: TimePeriod,
+    sunday?: TimePeriod,
+    holiday?: TimePeriod,
 };
 
 export interface ScheduleRange {
-    monday1: TimePeriod,
-    monday2: TimePeriod,
-    tuesday1: TimePeriod,
-    tuesday2: TimePeriod,
-    wednesday1: TimePeriod,
-    wednesday2: TimePeriod,
-    thursday1: TimePeriod,
-    thursday2: TimePeriod,
-    friday1: TimePeriod,
-    friday2: TimePeriod,
-    saturday1: TimePeriod,
-    saturday2: TimePeriod,
-    sunday1: TimePeriod,
-    sunday2: TimePeriod,
+    monday1?: TimePeriod,
+    monday2?: TimePeriod,
+    tuesday1?: TimePeriod,
+    tuesday2?: TimePeriod,
+    wednesday1?: TimePeriod,
+    wednesday2?: TimePeriod,
+    thursday1?: TimePeriod,
+    thursday2?: TimePeriod,
+    friday1?: TimePeriod,
+    friday2?: TimePeriod,
+    saturday1?: TimePeriod,
+    saturday2?: TimePeriod,
+    sunday1?: TimePeriod,
+    sunday2?: TimePeriod,
 };
 
 export interface Address {
@@ -133,6 +134,9 @@ export interface StationData {
         isMain: boolean,
     }[],
     federalState: string,
+    fedaralStateCode: string,
+    countryCode: string,
+    municipalityCode: `${number}`,
     hasBicycleParking: boolean,
     hasCarRental: boolean,
     hasDBLounge: boolean,
@@ -160,15 +164,15 @@ export interface StationData {
     /**
      * a weekly schedule
      */
-    localServiceStaff?: Schedule,
+    localServiceStaff?: {
+        availability: Schedule
+    },
     mailingAddress: Address,
     mobilityServiceStaff?: {
         /**
          * a weekly schedule with 2 ranges
          */
-        availability: {
-            availability: ScheduleRange,
-        },
+        availability: ScheduleRange,
         /**
          * mobility service on behalf of a railway company, advanced notification necessary
          */
@@ -177,6 +181,7 @@ export interface StationData {
          * staff is on site
          */
         staffOnSite: boolean,
+        meetingPoint: string,
     },
     name: string,
     /**
@@ -213,7 +218,7 @@ export interface StationData {
          * unrestricted (uneingeschränkt) or has an entryBan (Einfahrverbot).
          */
         steamPermission: "restricted" | "unrestricted" | "entryBan",
-        geographicCoordinates: Location,
+        geographicCoordinates?: Location,
         /**
          * UIC Primary Location Code PLC
          */
@@ -225,7 +230,7 @@ export interface StationData {
         email: string,
         name: string,
     },
-    wirelessLan: {
+    wirelessLan?: {
         /**
          * amount of access points
          */

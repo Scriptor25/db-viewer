@@ -19,7 +19,7 @@ const font = Fira_Sans({
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
     return (
-        <html lang="de" className={font.className}>
+        <html lang="en" className={font.className}>
             <head>
                 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
                 <title>DB Viewer</title>

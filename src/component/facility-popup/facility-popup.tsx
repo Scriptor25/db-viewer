@@ -28,7 +28,7 @@ export function FacilityPopup(
         <div className={styles.popup}>
             <p className={styles.header}>
                 <FontAwesomeIcon icon={type === "ELEVATOR" ? faElevator : faStairs} />
-                {description}
+                {description ?? (type === "ELEVATOR" ? "elevator" : "escalator")}
             </p>
             <p className={styles.content}>
                 <span>{stateExplanation}</span>
@@ -36,9 +36,11 @@ export function FacilityPopup(
             </p>
             <hr />
             <p className={styles.link}>
-                <button className="link" onClick={() => openDialogAction([geocoordX!, geocoordY!])}>
-                    {geocoordX}, {geocoordY}
-                </button>
+                {!!(geocoordX && geocoordY) && (
+                    <button className="link" onClick={() => openDialogAction([geocoordX, geocoordY])}>
+                        {geocoordX},&nbsp;{geocoordY}
+                    </button>
+                )}
             </p>
         </div>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import { StationFacilityStatusData } from "@/api/fasta";
+import { FacilityState, StationFacilityStatusData } from "@/api/fasta";
 import { StationData } from "@/api/stada";
 import styles from "@/app/station/[id]/page.module.scss";
 import { FacilityPopup } from "@/component/facility-popup/facility-popup";
@@ -13,20 +13,28 @@ const PAD_X = 0.002;
 const PAD_Y = 0.001;
 
 interface Props {
-    station: StationData | null,
-    status: StationFacilityStatusData | null,
+    station: StationData,
+    status: StationFacilityStatusData,
 };
+
+const FACILITY_COLOR: Record<FacilityState, string> = {
+    "INACTIVE": "#bc0d0d",
+    "ACTIVE": "#378725",
+    "UNKNOWN": "#cccccc",
+} as const;
 
 export function StationMapView({ station, status }: Readonly<Props>) {
 
     const { openDialog } = useContext(ServiceDialogContext);
 
-    const facilities = status?.facilities ?? [];
+    const facilities = status.facilities ?? [];
+    const evaNumbers = station.evaNumbers ?? [];
+    const rilIdentifiers = station.ril100Identifiers ?? [];
 
     let center: LngLat | undefined;
     let bounds: [LngLat, LngLat] | undefined;
 
-    const eva = station?.evaNumbers.find(entry => entry.isMain);
+    const eva = station.evaNumbers.find(entry => entry.isMain);
     if (eva) {
         center = eva.geographicCoordinates.coordinates.slice(0, 2) as LngLat;
         bounds = [
@@ -35,33 +43,41 @@ export function StationMapView({ station, status }: Readonly<Props>) {
         ];
     }
 
-    const pins = facilities
-        .filter(facility => facility.geocoordX !== undefined && facility.geocoordY !== undefined)
-        .map(facility => {
-            let color: string;
-            switch (facility.state) {
-                case "INACTIVE":
-                    color = "#bc0d0d";
-                    break;
-                case "ACTIVE":
-                    color = "#378725";
-                    break;
-                default:
-                    color = "#cccccc";
-                    break;
-            }
-            return {
-                location: [facility.geocoordX!, facility.geocoordY!],
-                content: <FacilityPopup openDialogAction={openDialog} facility={facility} />,
-                color: color,
-            } as Pin;
-        });
+    const pins: Pin[] = [];
 
-    if (center) {
+    for (const facility of facilities) {
+        if (!facility.geocoordX || !facility.geocoordY) {
+            continue;
+        }
+
         pins.push({
-            location: center,
-            content: <StationPopup openDialogAction={openDialog} station={station} center={center} />,
-        } as Pin);
+            location: [facility.geocoordX, facility.geocoordY],
+            content: <FacilityPopup openDialogAction={openDialog} facility={facility} />,
+            color: FACILITY_COLOR[facility.state],
+        });
+    }
+
+    for (const index in evaNumbers) {
+        const eva = evaNumbers[index];
+        const ril = rilIdentifiers[index];
+        if (eva.isMain !== ril.isMain) {
+            continue;
+        }
+
+        const location = eva.geographicCoordinates.coordinates.slice(0, 2) as LngLat;
+        pins.push({
+            location,
+            content: <StationPopup
+                openDialogAction={openDialog}
+                station={station}
+                center={location}
+                isMain={eva.isMain}
+                number={eva.number}
+                identifier={ril.rilIdentifier}
+                steamPermission={ril.steamPermission}
+                locationCode={ril.primaryLocationCode} />,
+            color: eva.isMain ? "#3fb1ce" : "#3f59ce",
+        });
     }
 
     if (!bounds && pins.length) {
@@ -72,14 +88,18 @@ export function StationMapView({ station, status }: Readonly<Props>) {
     }
 
     for (const pin of pins) {
-        if (pin.location[0] - PAD_X < bounds![0][0])
+        if (pin.location[0] - PAD_X < bounds![0][0]) {
             bounds![0][0] = pin.location[0] - PAD_X;
-        if (pin.location[0] + PAD_X > bounds![1][0])
+        }
+        if (pin.location[0] + PAD_X > bounds![1][0]) {
             bounds![1][0] = pin.location[0] + PAD_X;
-        if (pin.location[1] - PAD_Y < bounds![0][1])
+        }
+        if (pin.location[1] - PAD_Y < bounds![0][1]) {
             bounds![0][1] = pin.location[1] - PAD_Y;
-        if (pin.location[1] + PAD_Y > bounds![1][1])
+        }
+        if (pin.location[1] + PAD_Y > bounds![1][1]) {
             bounds![1][1] = pin.location[1] + PAD_Y;
+        }
     }
 
     return <MapView center={center} bounds={bounds} pins={pins} className={styles.map} />;

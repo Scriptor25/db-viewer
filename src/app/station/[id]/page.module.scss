@@ -5,7 +5,7 @@
 
   padding: 1rem 2rem;
 
-  & fieldset {
+  fieldset {
     display: flex;
     flex-flow: column nowrap;
     gap: 1rem;
@@ -34,7 +34,7 @@
   padding: 2px;
   background: var(--color-panel);
 
-  & .header {
+  .header {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
@@ -45,22 +45,39 @@
     gap: 7px;
   }
 
-  & .content {
+  .content {
     display: flex;
     flex-flow: column nowrap;
     gap: 4px;
     padding: 4px;
   }
 
-  & .italic {
+  .italic {
     font-style: italic;
   }
 
-  & .link {
+  .link {
     padding: 4px;
   }
 
-  & hr {
+  hr {
     width: 100%;
+  }
+}
+
+.status {
+  table {
+    border-collapse: collapse;
+
+    th {
+      text-align: left;
+      font-weight: bold;
+      padding: 4px 8px;
+    }
+
+    td {
+      border: 1px solid black;
+      padding: 4px 8px;
+    }
   }
 }

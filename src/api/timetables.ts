@@ -1,4 +1,5 @@
 import { QueryResult, fetchXML } from "@/util/api";
+import { TimestampString } from "@/util/type";
 import { unstable_cache } from "next/cache";
 
 /**
@@ -24,7 +25,7 @@ export interface DistributorMessage {
     /**
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    ts: string,
+    ts: TimestampString,
 };
 
 /**
@@ -62,7 +63,7 @@ export interface Message {
     /**
      * Valid from. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    from?: string,
+    from?: TimestampString,
     /**
      * Message id.
      */
@@ -98,11 +99,11 @@ export interface Message {
     /**
      * Valid to. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    to?: string,
+    to?: TimestampString,
     /**
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. "1404011437" for 14:37 on April the 1st of 2014.
      */
-    ts: string,
+    ts: TimestampString,
 };
 
 /**
@@ -144,7 +145,7 @@ export interface Event {
      * Cancellation time. Time when the cancellation of this stop was created.
      * The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    clt?: string,
+    clt?: TimestampString,
     /**
      * Changed platform.
      */
@@ -164,7 +165,7 @@ export interface Event {
      * Changed time. New estimated or actual departure or arrival time.
      * The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    ct?: string,
+    ct?: TimestampString,
     /**
      * Distant change.
      */
@@ -210,7 +211,7 @@ export interface Event {
      * Planned time. Planned departure or arrival time.
      * The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    pt?: string,
+    pt?: TimestampString,
     /**
      * Transition. Trip id of the next or previous train of a shared train. At the start stop this references
      * the previous trip, at the last stop it references the next trip. E.g. '2016448009055686515-1403311438-1'
@@ -256,7 +257,7 @@ export interface Connection {
      * Time stamp.
      * The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    ts: string,
+    ts: TimestampString,
 };
 
 /**
@@ -266,7 +267,7 @@ export interface HistoricDelay {
     /**
      * The arrival event. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    ar?: string,
+    ar?: TimestampString,
     /**
      * Detailed description of delay cause.
      */
@@ -274,7 +275,7 @@ export interface HistoricDelay {
     /**
      * The departure event. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    dp?: string,
+    dp?: TimestampString,
     /**
      * Delay source.
      * * L - LEIBIT LeiBit/LeiDis.
@@ -289,7 +290,7 @@ export interface HistoricDelay {
     /**
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    ts: string,
+    ts: TimestampString,
 };
 
 /**
@@ -311,7 +312,7 @@ export interface HistoricPlatformChange {
     /**
      * Timestamp. The time, in ten digit 'YYMMddHHmm' format, e.g. '1404011437' for 14:37 on April the 1st of 2014.
      */
-    ts: string,
+    ts: TimestampString,
 };
 
 /**
@@ -336,7 +337,7 @@ export interface ReferenceTrip {
      * trip from its start station. Example: '-7874571842864554321-1403311221' would be used for a trip with daily trip
      * id '-7874571842864554321' that starts on March the 31st 2014.
      */
-    id: string,
+    id: `${number}-${TimestampString}`,
     /**
      * It's a compound data type that contains common data items that characterize a reference trip.
      * The contents are represented as a compact 3-tuple in XML.

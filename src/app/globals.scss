@@ -84,7 +84,7 @@ button,
   cursor: pointer;
 
   &:hover,
-  &:focus,
+  &:focus-visible,
   &:active,
   &.selection {
     background: var(--color-background);
@@ -144,7 +144,7 @@ a,
   transition: color 0.2s;
 
   &:hover,
-  &:focus,
+  &:focus-visible,
   &:active {
     text-decoration: underline;
     color: var(--color-accent);

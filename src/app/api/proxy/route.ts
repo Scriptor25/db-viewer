@@ -7,18 +7,18 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     try {
-        const response = await fetch(url, { method: "GET", headers: request.headers, cache: "force-cache" });
-
-        const headers = new Headers();
-        headers.set("Content-Type", response.headers.get("Content-Type") ?? "application/json");
-        headers.set("Access-Control-Allow-Origin", "*");
-        headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-        headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        const response = await fetch(url, { method: "GET", headers: request.headers });
 
         return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
-            headers: headers,
+            headers: {
+                "Content-Type": response.headers.get("Content-Type") ?? "application/json",
+                "Cache-Control": "public, max-age=31536000, immutable",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            },
         });
     } catch (error) {
         return Response.json({

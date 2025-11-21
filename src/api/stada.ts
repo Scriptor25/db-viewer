@@ -1,4 +1,5 @@
 import { QueryResult, fetchJSON } from "@/util/api";
+import { createQuery } from "@/util/query";
 import { unstable_cache } from "next/cache";
 
 export interface TimePeriod {
@@ -283,38 +284,33 @@ export const getAllStationsData = (query?: {
 }): Promise<QueryResult<StationData>> => unstable_cache(async () => {
     const params = new URLSearchParams();
 
-    if (query) {
-        if (query.limit !== undefined)
-            params.set("limit", query.limit.toString(10));
-        if (query.offset !== undefined)
-            params.set("offset", query.offset.toString(10));
-        if (query.searchstring !== undefined) {
-            if (typeof query.searchstring === "string")
-                params.set("searchstring", query.searchstring);
-            else for (const value of query.searchstring)
-                params.append("searchstring", value);
+    query && createQuery(params, query, (query, key) => {
+        switch (key) {
+            case "eva":
+            case "limit":
+            case "offset":
+                return query[key]?.toString(10);
+
+            case "federalstate":
+            case "logicaloperator":
+            case "ril":
+            case "searchstring":
+                return query[key];
+
+            case "category": {
+                const value = query[key];
+                if (value === undefined || typeof value === "string") {
+                    return value;
+                }
+
+                if (typeof value === "number") {
+                    return value.toString(10);
+                }
+
+                return value.map(item => typeof item === "string" ? item : item.toString(10));
+            }
         }
-        if (query.category !== undefined) {
-            if (typeof query.category === "string")
-                params.set("category", query.category);
-            else if (typeof query.category === "number")
-                params.set("category", query.category.toString(10));
-            else for (const value of query.category)
-                params.append("category", typeof value === "number" ? value.toString(10) : value);
-        }
-        if (query.federalstate !== undefined) {
-            if (typeof query.federalstate === "string")
-                params.set("federalstate", query.federalstate);
-            else for (const value of query.federalstate)
-                params.append("federalstate", value);
-        }
-        if (query.eva !== undefined)
-            params.set("eva", query.eva.toString(10));
-        if (query.ril !== undefined)
-            params.set("ril", query.ril);
-        if (query.logicaloperator !== undefined)
-            params.set("logicaloperator", query.logicaloperator);
-    }
+    });
 
     const result = await fetchJSON<{
         limit: number,

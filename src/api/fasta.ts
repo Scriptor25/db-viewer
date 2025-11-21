@@ -1,4 +1,5 @@
 import { QueryResult, fetchJSON } from "@/util/api";
+import { createQuery } from "@/util/query";
 import { unstable_cache } from "next/cache";
 
 export type FacilityType = "ESCALATOR" | "ELEVATOR";
@@ -67,29 +68,19 @@ export const getAllFacilitiesStatus = (query?: {
 }): Promise<QueryResult<FacilityStatusData>> => unstable_cache(async () => {
     const params = new URLSearchParams();
 
-    if (query) {
-        if (query.type) {
-            for (const value of query.type) {
-                params.append("type", value);
-            }
+    query && createQuery(params, query, (query, key) => {
+        switch (key) {
+            case "type":
+            case "state":
+                return query[key];
+            case "equipmentnumbers":
+                return query[key]?.map(value => value.toString(10));
+            case "stationnumber":
+                return query[key]?.toString(10);
+            case "area":
+                return query[key]?.join(",");
         }
-        if (query.state) {
-            for (const value of query.state) {
-                params.append("state", value);
-            }
-        }
-        if (query.equipmentnumbers) {
-            for (const value of query.equipmentnumbers) {
-                params.append("equipmentnumbers", value.toString(10));
-            }
-        }
-        if (query.stationnumber) {
-            params.set("stationnumber", query.stationnumber.toString(10));
-        }
-        if (query.area) {
-            params.set("area", query.area.join(","));
-        }
-    }
+    });
 
     const result = await fetchJSON<FacilityStatusData[], null>(
         `fasta/v2/facilities?${params}`,

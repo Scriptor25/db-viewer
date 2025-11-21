@@ -29,6 +29,29 @@ interface Filter {
     filterMode?: "and" | "or",
 };
 
+function applyFilter(filterMode: "and" | "or" | undefined, filterAttributes: string[], item: Record<string, any>) {
+    let ok = true;
+    let any = false;
+    for (const attribute of filterAttributes) {
+        const hasAttribute = item[attribute] === true;
+
+        if (!filterMode || filterMode === "and") {
+            if (!hasAttribute) {
+                ok = false;
+                break;
+            }
+            any = true;
+            continue;
+        }
+
+        if (filterMode === "or" && hasAttribute) {
+            any = true;
+            break;
+        }
+    }
+    return ok && any;
+}
+
 async function getPage(index: number, { filterQuery, filterStates, filterAttributes, filterMode }: Filter) {
     "use server";
 
@@ -55,34 +78,18 @@ async function getPage(index: number, { filterQuery, filterStates, filterAttribu
 
     const filtered: StationData[] = [];
 
-    for (let i = 0; i < total; i += 1000) {
+    for (let i = 0; i < total; i += 100) {
         const { items } = await getAllStationsData({
-            limit: 1000,
+            limit: 100,
             offset: i,
             searchstring: filterQuery,
             federalstate: filterStates,
         });
 
         for (const item of items) {
-            let ok = true;
-            let any = false;
-            for (const attribute of filterAttributes) {
-                const hasAttribute = (item as Record<string, any>)[attribute] === true;
-                if (!filterMode || filterMode === "and") {
-                    if (!hasAttribute) {
-                        ok = false;
-                        break;
-                    }
-                    any = true;
-                } else if (filterMode === "or") {
-                    if (hasAttribute) {
-                        any = true;
-                        break;
-                    }
-                }
-            }
-            if (ok && any)
+            if (applyFilter(filterMode, filterAttributes, item)) {
                 filtered.push(item);
+            }
         }
     }
 

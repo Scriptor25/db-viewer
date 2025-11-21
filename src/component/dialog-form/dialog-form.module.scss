@@ -26,7 +26,7 @@
       transition: color 0.2s;
 
       &:hover,
-      &:focus,
+      &:focus-visible,
       &:active {
         color: var(--color-accent);
       }

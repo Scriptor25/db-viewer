@@ -23,9 +23,9 @@ export async function fetchAPI<E>(
     }
 > {
   if (
-    !process.env.API_ENDPOINT ||
-    !process.env.CLIENT_ID ||
-    !process.env.CLIENT_SECRET
+    !process.env.API_ENDPOINT
+    || !process.env.CLIENT_ID
+    || !process.env.CLIENT_SECRET
   ) {
     throw new Error(
       "missing API_ENDPOINT, CLIENT_ID or CLIENT_SECRET environment variables",

@@ -69,8 +69,8 @@ export const getAllFacilitiesStatus = (query?: {
   unstable_cache(async () => {
     const params = new URLSearchParams();
 
-    query &&
-      createQuery(params, query, (query, key) => {
+    query
+      && createQuery(params, query, (query, key) => {
         switch (key) {
           case "type":
           case "state":

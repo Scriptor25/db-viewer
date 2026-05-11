@@ -1,56 +1,75 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { DetailedHTMLProps, KeyboardEventHandler, MouseEventHandler, TableHTMLAttributes, useCallback } from "react";
+import {
+  DetailedHTMLProps,
+  KeyboardEventHandler,
+  MouseEventHandler,
+  TableHTMLAttributes,
+  useCallback,
+} from "react";
 
-export interface TableRowProps extends DetailedHTMLProps<TableHTMLAttributes<HTMLTableRowElement>, HTMLTableRowElement> {
-    href?: string,
-};
+export interface TableRowProps extends DetailedHTMLProps<
+  TableHTMLAttributes<HTMLTableRowElement>,
+  HTMLTableRowElement
+> {
+  href?: string;
+}
 
 export function TableRow({ href, ...props }: Readonly<TableRowProps>) {
+  const router = useRouter();
 
-    const router = useRouter();
+  const open = useCallback(() => {
+    if (href) {
+      router.push(href);
+    }
+  }, [href, router]);
 
-    const open = useCallback(() => {
-        if (href) {
-            router.push(href);
-        }
-    }, [href, router]);
+  const openExternal = useCallback(() => {
+    if (href) {
+      window.open(href, "_blank", "noopener,noreferrer");
+    }
+  }, [href]);
 
-    const openExternal = useCallback(() => {
-        if (href) {
-            window.open(href, "_blank", "noopener,noreferrer");
-        }
-    }, [href]);
+  const handleClick: MouseEventHandler = useCallback(
+    (event) => {
+      event.preventDefault();
+      switch (event.button) {
+        case 0:
+          if (event.ctrlKey) {
+            openExternal();
+          } else {
+            open();
+          }
+          break;
+        case 1:
+          openExternal();
+          break;
+      }
+    },
+    [open, openExternal],
+  );
 
-    const handleClick: MouseEventHandler = useCallback(event => {
+  const handleKeyDown: KeyboardEventHandler = useCallback(
+    (event) => {
+      if (event.key === "Enter") {
         event.preventDefault();
-        switch (event.button) {
-            case 0:
-                if (event.ctrlKey) {
-                    openExternal();
-                } else {
-                    open();
-                }
-                break;
-            case 1:
-                openExternal();
-                break;
+        if (event.ctrlKey) {
+          openExternal();
+        } else {
+          open();
         }
-    }, [open, openExternal]);
+      }
+    },
+    [open, openExternal],
+  );
 
-    const handleKeyDown: KeyboardEventHandler = useCallback(event => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            if (event.ctrlKey) {
-                openExternal();
-            } else {
-                open();
-            }
-        }
-    }, [open, openExternal]);
-
-    return (
-        <tr onClick={handleClick} onKeyDown={handleKeyDown} tabIndex={0} {...props} />
-    );
+  return (
+    <tr
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      {...props}
+    />
+  );
 }

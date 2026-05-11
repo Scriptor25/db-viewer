@@ -14,7 +14,7 @@ and create a new application. You need to subscribe to following APIs for the we
 
 - Timetables
 - FaSta - Station Facilities Status
-- StaDa - Station Data 
+- StaDa - Station Data
 
 The next thing to do (pun intended) is to run `npm install` and set up the project locally. After that run `npm run dev`
 to run the site in developer mode or `npm run build` followed by `npm run start` to launch in production mode. Now you

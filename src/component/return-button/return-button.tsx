@@ -6,16 +6,20 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function ReturnButton() {
-    const router = useRouter();
-    const [hasReferrer, setHasReferrer] = useState<boolean>(false);
+  const router = useRouter();
+  const [hasReferrer, setHasReferrer] = useState<boolean>(false);
 
-    useEffect(() => {
-        setHasReferrer(globalThis.history.length > 1);
-    }, [setHasReferrer]);
+  useEffect(() => {
+    setHasReferrer(globalThis.history.length > 1);
+  }, [setHasReferrer]);
 
-    return (
-        <button className="link" onClick={() => hasReferrer ? router.back() : router.push("/")} title="Back">
-            <FontAwesomeIcon icon={faArrowLeftLong} size="2xl" />
-        </button>
-    );
+  return (
+    <button
+      className="link"
+      onClick={() => (hasReferrer ? router.back() : router.push("/"))}
+      title="Back"
+    >
+      <FontAwesomeIcon icon={faArrowLeftLong} size="2xl" />
+    </button>
+  );
 }

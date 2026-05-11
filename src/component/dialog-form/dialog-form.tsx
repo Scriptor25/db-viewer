@@ -2,6 +2,7 @@
 
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import {
   PropsWithChildren,
   Ref,
@@ -9,16 +10,17 @@ import {
   useRef,
   useState,
 } from "react";
+
 import styles from "./dialog-form.module.scss";
 
-export type DialogFormRef = {
+export interface DialogFormRef {
   open: (onSubmit: (value: string) => void) => void;
-};
+}
 
-type Props = {
+interface Props {
   ref?: Ref<DialogFormRef>;
   className?: string;
-};
+}
 
 export function DialogForm({
   ref,

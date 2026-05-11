@@ -6,7 +6,6 @@ import { PageView } from "@/component/page-view/page-view";
 import { DataTable, DataTableRowProps } from "@/component/table/table";
 import { faCheck, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { SearchParams } from "next/dist/server/request/search-params";
 
 import styles from "./page.module.scss";
 
@@ -16,10 +15,6 @@ interface StationProps extends StationData {
   hasQueryFilter?: boolean;
   hasStateFilter?: boolean;
   attributeFilter?: string[];
-}
-
-interface PageProps {
-  searchParams: Promise<SearchParams>;
 }
 
 interface Filter {
@@ -249,7 +244,7 @@ async function renderPage(
   );
 }
 
-export default async function Page({ searchParams }: Readonly<PageProps>) {
+export default async function Page({ searchParams }: PageProps<"/">) {
   const { query, states, attributes, mode } = await searchParams;
 
   const filterQuery = (query as string | undefined)

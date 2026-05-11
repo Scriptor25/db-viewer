@@ -1,19 +1,18 @@
+"use server";
+
 import { getStationFacilityStatus } from "@/api/fasta";
 import { Schedule, ScheduleRange, getStationData } from "@/api/stada";
 import { ReturnButton } from "@/component/return-button/return-button";
-
 import { ServiceDialogProvider } from "@/component/service-dialog/service-dialog-provider";
 import { StationMapView } from "@/component/station-map-view/station-map-view";
+import { sanitizePhone } from "@/util/phone";
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
 import styles from "./page.module.scss";
 
-interface Props {
-  params: Promise<{ id: number }>;
-}
-
-function ScheduleView({ schedule }: Readonly<{ schedule?: Schedule }>) {
+async function ScheduleView({ schedule }: Readonly<{ schedule?: Schedule }>) {
   if (!schedule) {
     return;
   }
@@ -89,7 +88,7 @@ function ScheduleView({ schedule }: Readonly<{ schedule?: Schedule }>) {
   );
 }
 
-function ScheduleRangeView({
+async function ScheduleRangeView({
   schedule,
 }: Readonly<{ schedule?: ScheduleRange }>) {
   if (!schedule) {
@@ -160,19 +159,13 @@ function ScheduleRangeView({
   );
 }
 
-function cleanTel(tel: string): string {
-  tel = tel.replaceAll(/\D/g, "");
-  if (tel.startsWith("0")) {
-    tel = `+49${tel.slice(1)}`;
-  }
-  return tel;
-}
-
-export default async function Page({ params }: Readonly<Props>) {
+export default async function Page({ params }: PageProps<"/station/[id]">) {
   const { id } = await params;
 
-  const station = await getStationData(id);
-  const status = await getStationFacilityStatus(id);
+  const stationId = parseInt(id, 10);
+
+  const station = await getStationData(stationId);
+  const status = await getStationFacilityStatus(stationId);
 
   if (!station || !status) {
     notFound();
@@ -205,36 +198,37 @@ export default async function Page({ params }: Readonly<Props>) {
         <p>ifopt: {station.ifopt}</p>
 
         <p>
-          mailing address: {station.mailingAddress.street}{" "}
-          {station.mailingAddress.houseNumber} {station.mailingAddress.zipcode}{" "}
+          mailing address: {station.mailingAddress.street}&nbsp;
+          {station.mailingAddress.houseNumber} {station.mailingAddress.zipcode}
+          &nbsp;
           {station.mailingAddress.city}
         </p>
 
         <p>
-          product line: {station.productLine.productLine} /{" "}
+          product line: {station.productLine.productLine} /&nbsp;
           {station.productLine.segment}
         </p>
 
         <p>
-          time table office:{" "}
+          time table office:&nbsp;
           <Link href={`mailto:${station.timeTableOffice.email}`}>
             {station.timeTableOffice.name}
           </Link>
         </p>
 
         <p>
-          station management: #{station.stationManagement.number} &mdash;{" "}
+          station management: #{station.stationManagement.number} &mdash;&nbsp;
           {station.stationManagement.name}
         </p>
 
         <p>
-          service center: #{station.szentrale.number} &mdash;{" "}
-          {station.szentrale.name}{" "}
+          service center: #{station.szentrale.number} &mdash;&nbsp;
+          {station.szentrale.name}&nbsp;
           {station.szentrale.publicPhoneNumber && (
             <>
               (
               <Link
-                href={`tel:${cleanTel(station.szentrale.publicPhoneNumber)}`}
+                href={`tel:${sanitizePhone(station.szentrale.publicPhoneNumber)}`}
               >
                 {station.szentrale.publicPhoneNumber}
               </Link>
@@ -245,7 +239,7 @@ export default async function Page({ params }: Readonly<Props>) {
 
         {station.wirelessLan && (
           <p>
-            wireless lan: {station.wirelessLan.product}{" "}
+            wireless lan: {station.wirelessLan.product}&nbsp;
             {station.wirelessLan.amount} {station.wirelessLan.installDate}
           </p>
         )}
@@ -321,11 +315,11 @@ export default async function Page({ params }: Readonly<Props>) {
         <fieldset>
           <legend>mobility service staff</legend>
           <p>
-            service on behalf:{" "}
+            service on behalf:&nbsp;
             {station.mobilityServiceStaff?.serviceOnBehalf ? "yes" : "no"}
           </p>
           <p>
-            staff on site:{" "}
+            staff on site:&nbsp;
             {station.mobilityServiceStaff?.staffOnSite ? "yes" : "no"}
           </p>
           <p>meeting point: {station.mobilityServiceStaff?.meetingPoint}</p>

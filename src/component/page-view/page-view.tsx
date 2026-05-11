@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from "react";
 
 import styles from "./page-view.module.scss";
 
-type Props<T, E = undefined> = {
+interface Props<T, E = undefined> {
   pageAction(
     index: number,
     extra: E,
@@ -12,7 +12,7 @@ type Props<T, E = undefined> = {
   renderAction(elements: T[], extra: E): Promise<ReactNode>;
   extra: E;
   className?: string;
-};
+}
 
 const SKIP_PAGE_COUNT = 5;
 const HALF_SKIP_PAGE_COUNT = 2;

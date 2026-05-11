@@ -1,3 +1,5 @@
+import "server-only";
+
 import { QueryResult, fetchJSON } from "@/util/api";
 import { createQuery } from "@/util/query";
 import { unstable_cache } from "next/cache";

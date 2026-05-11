@@ -1,8 +1,8 @@
 "use client";
 
 import { StationData } from "@/api/stada";
-import styles from "@/app/station/[id]/page.module.scss";
 import { LngLat } from "@/component/map-view/map-view";
+
 import {
   IconDefinition,
   faFireFlameCurved,
@@ -11,6 +11,8 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import styles from "@/app/station/[id]/page.module.scss";
 
 interface Props {
   openDialogAction: (location: LngLat) => void;

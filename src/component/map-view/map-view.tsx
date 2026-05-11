@@ -1,6 +1,7 @@
 "use client";
 
 import { Marker, Popup, RequestParameters } from "maplibre-gl";
+
 import {
   DetailedHTMLProps,
   HTMLAttributes,
@@ -8,7 +9,9 @@ import {
   useEffect,
   useState,
 } from "react";
+
 import { createRoot } from "react-dom/client";
+
 import { Map, MapRef } from "react-map-gl/maplibre";
 
 export type LngLat = [number, number];

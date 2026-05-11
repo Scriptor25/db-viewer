@@ -1,9 +1,11 @@
+"use client";
+
 import { LngLat } from "@/component/map-view/map-view";
 import { createContext } from "react";
 
-type ServiceDialogContextType = {
+interface ServiceDialogContextType {
   openDialog: (location: LngLat) => void;
-};
+}
 
 export const ServiceDialogContext = createContext<ServiceDialogContextType>({
   openDialog: () => {

@@ -6,7 +6,6 @@ import "./globals.scss";
 
 import { Metadata } from "next";
 import { Fira_Sans } from "next/font/google";
-import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "DB Viewer",
@@ -19,9 +18,7 @@ const font = Fira_Sans({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: ReactNode }>) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={font.className}>
       <head>

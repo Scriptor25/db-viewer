@@ -2,13 +2,16 @@
 
 import { DialogForm, DialogFormRef } from "@/component/dialog-form/dialog-form";
 import { ServiceDialogContext } from "@/component/service-dialog/service-dialog-context";
+
 import {
   faApple,
   faGoogle,
   faMicrosoft,
 } from "@fortawesome/free-brands-svg-icons";
+
 import { faMap, faMobile } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { PropsWithChildren, useRef } from "react";
 
 import styles from "./service-dialog.module.scss";

@@ -1,3 +1,5 @@
+import "server-only";
+
 import { QueryResult, fetchXML } from "@/util/api";
 import { unstable_cache } from "next/cache";
 

@@ -32,24 +32,24 @@ export type Template<T, O extends Order<T>> = {
   [I in keyof O]: O[I] extends keyof T ? Field<T, O[I]> : never;
 };
 
-export type DataTableFieldProps<T> = {
+export interface DataTableFieldProps<T> {
   field: Field<T, keyof T>;
   data?: T[keyof T];
   active?: boolean;
-};
+}
 
-export type DataTableRowProps<T> = {
+export interface DataTableRowProps<T> {
   value: T;
   row?: TableRowProps;
-};
+}
 
-export type DataTableProps<T, O extends Order<T>> = {
+export interface DataTableProps<T, O extends Order<T>> {
   template: Template<T, O>;
   id: keyof T;
   active?: (keyof T)[];
   data: DataTableRowProps<T>[];
   className?: string;
-};
+}
 
 export function DataTableField<T>({
   field,
@@ -62,13 +62,25 @@ export function DataTableField<T>({
   if (data !== undefined)
     switch (field.type) {
       case "boolean":
+        if (typeof data !== "boolean") {
+          throw new Error(
+            `data is of type ${typeof data}, but requires boolean`,
+          );
+        }
         content = <FontAwesomeIcon icon={data ? faCheck : faClose} />;
         className = styles.boolean;
         break;
+
       case "number":
-        content = <span>{data as number}</span>;
+        if (typeof data !== "number") {
+          throw new Error(
+            `data is of type ${typeof data}, but requires number`,
+          );
+        }
+        content = <span>{data}</span>;
         className = styles.number;
         break;
+
       case "tristate": {
         let icon: IconProp;
         switch (data) {
@@ -90,16 +102,21 @@ export function DataTableField<T>({
         className = styles.tristate;
         break;
       }
+
       case "string":
-        content = <span>{data as string}</span>;
+        if (typeof data !== "string") {
+          throw new Error(
+            `data is of type ${typeof data}, but requires string`,
+          );
+        }
+        content = <span>{data}</span>;
         className = styles.string;
         break;
-      case "custom": {
-        const Render = field.render;
-        content = <Render data={data} />;
+
+      case "custom":
+        content = <field.render data={data} />;
         className = styles.custom;
         break;
-      }
     }
 
   return (

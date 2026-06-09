@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 
+import { SubmitEventHandler, useCallback } from "react";
+
 import styles from "./filter-view.module.scss";
 
 const STATES: [string, string][] = [
@@ -40,10 +42,10 @@ const ATTRIBUTES: [string, string][] = [
 ];
 
 interface Props {
-  query?: string;
+  query: string | null;
   states: string[];
   attributes: string[];
-  mode?: "and" | "or";
+  mode: "and" | "or";
   className?: string;
 }
 
@@ -56,30 +58,35 @@ export function FilterView({
 }: Readonly<Props>) {
   const router = useRouter();
 
+  const handleSubmit: SubmitEventHandler<HTMLFormElement> = useCallback(
+    (event) => {
+      event.preventDefault();
+
+      const data = new FormData(event.currentTarget);
+      const params = new URLSearchParams();
+
+      if (data.get("query")) {
+        params.append("query", data.get("query") as string);
+      }
+      if (data.get("mode")) {
+        params.append("mode", data.get("mode") as string);
+      }
+      for (const state of data.getAll("states")) {
+        params.append("states", state as string);
+      }
+      for (const attribute of data.getAll("attributes")) {
+        params.append("attributes", attribute as string);
+      }
+
+      router.push(`?${params}`);
+    },
+    [router],
+  );
+
   return (
     <form
       className={`${styles.container} ${className ?? ""}`}
-      onSubmit={(event) => {
-        event.preventDefault();
-
-        const data = new FormData(event.currentTarget);
-        const params = new URLSearchParams();
-
-        if (data.get("query")) {
-          params.append("query", data.get("query") as string);
-        }
-        if (data.get("mode")) {
-          params.append("mode", data.get("mode") as string);
-        }
-        for (const state of data.getAll("states")) {
-          params.append("states", state as string);
-        }
-        for (const attribute of data.getAll("attributes")) {
-          params.append("attributes", attribute as string);
-        }
-
-        router.push(`?${params}`);
-      }}
+      onSubmit={handleSubmit}
       onReset={() => router.replace("?")}
       suppressHydrationWarning
     >
@@ -90,7 +97,7 @@ export function FilterView({
           <input
             type="text"
             name="query"
-            defaultValue={query}
+            defaultValue={query ?? undefined}
             enterKeyHint="search"
             placeholder="filter station by name"
           />
@@ -134,8 +141,12 @@ export function FilterView({
         <span>OR Attribute Filter</span>
       </label>
       <div className={styles.group}>
-        <button type="submit">Apply Filter</button>
-        <button type="reset">Clear Filter</button>
+        <button className="button" type="submit">
+          Apply Filter
+        </button>
+        <button className="button" type="reset">
+          Clear Filter
+        </button>
       </div>
     </form>
   );

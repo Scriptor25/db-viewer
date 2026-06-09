@@ -1,50 +1,58 @@
-"use client";
+"use server";
 
-import { ReactNode, useEffect, useState } from "react";
+import { makeParams, SearchParams } from "@/util/params";
 
+import { ComponentType, ReactNode, Suspense } from "react";
+
+import Link from "next/link";
 import styles from "./page-view.module.scss";
 
 interface Props<T, E = undefined> {
-  pageAction(
+  getPage: (
     index: number,
     extra: E,
-  ): Promise<{ count: number; elements: T[] }>;
-  renderAction(elements: T[], extra: E): Promise<ReactNode>;
+  ) => Promise<{ count: number; elements: T[] }>;
+  Page: ComponentType<{ elements: T[]; extra: E }>;
   extra: E;
+  searchParams: SearchParams;
   className?: string;
 }
 
 const SKIP_PAGE_COUNT = 5;
 const HALF_SKIP_PAGE_COUNT = 2;
 
-export function PageView<T, E>({
-  pageAction,
-  renderAction,
+async function PageButton({
+  index,
+  searchParams,
+  className,
+  children,
+}: {
+  index: number;
+  searchParams: SearchParams;
+  className?: string;
+  children?: ReactNode;
+}) {
+  const params = makeParams(searchParams);
+  params.set("page", `${index}`);
+
+  return (
+    <Link href={`?${params}`} className={className}>
+      {children}
+    </Link>
+  );
+}
+
+export async function PageView<T, E>({
+  getPage,
+  Page,
   extra,
+  searchParams,
   className,
 }: Readonly<Props<T, E>>) {
-  const [index, setIndex] = useState(0);
-  const [data, setData] = useState<{ count: number; content: ReactNode }>();
+  const params = makeParams(searchParams);
+  const index = parseInt(params.get("page") ?? "0", 10);
 
-  const [extraState, setExtraState] = useState<E>(extra);
-
-  if (JSON.stringify(extraState) !== JSON.stringify(extra)) {
-    setIndex(0);
-    setExtraState(extra);
-  }
-
-  useEffect(() => {
-    pageAction(index, extra).then(({ count, elements }) => {
-      renderAction(elements, extra).then((content) => {
-        setData({ count, content });
-      });
-    });
-    return () => {
-      setData(undefined);
-    };
-  }, [pageAction, renderAction, extra, index, setData]);
-
-  const count = data?.count ?? 0;
+  const { count, elements } = await getPage(index, extra);
 
   let navigation: ReactNode | undefined;
   if (count > 1) {
@@ -69,30 +77,31 @@ export function PageView<T, E>({
     navigation = (
       <div className={styles.navigation}>
         <ul className={styles.navigation}>
-          <button
-            onClick={() =>
-              setIndex((index) => Math.max(index - SKIP_PAGE_COUNT, 0))
-            }
+          <PageButton
+            index={Math.max(index - SKIP_PAGE_COUNT, 0)}
+            searchParams={searchParams}
+            className="button"
           >
             &laquo;
-          </button>
+          </PageButton>
           {indices?.map((i) => (
             <li key={i}>
-              <button
-                onClick={() => setIndex(i)}
-                className={i === index ? "selection" : ""}
+              <PageButton
+                index={i}
+                searchParams={searchParams}
+                className={i === index ? "button selection" : "button"}
               >
                 {i + 1}
-              </button>
+              </PageButton>
             </li>
           ))}
-          <button
-            onClick={() =>
-              setIndex((index) => Math.min(index + SKIP_PAGE_COUNT, count - 1))
-            }
+          <PageButton
+            index={Math.min(index + SKIP_PAGE_COUNT, count - 1)}
+            searchParams={searchParams}
+            className="button"
           >
             &raquo;
-          </button>
+          </PageButton>
         </ul>
         <span>
           {indices[0] + 1} - {indices.at(-1)! + 1} / {count}
@@ -103,7 +112,11 @@ export function PageView<T, E>({
 
   return (
     <div className={`${styles.container} ${className ?? ""}`}>
-      <div className={styles.content}>{data?.content ?? <progress />}</div>
+      <div className={styles.content}>
+        <Suspense fallback={<progress />}>
+          <Page elements={elements} extra={extra} />
+        </Suspense>
+      </div>
       {navigation}
     </div>
   );

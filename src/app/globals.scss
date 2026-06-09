@@ -16,6 +16,7 @@
   font-style: inherit;
 
   color: inherit;
+  accent-color: inherit;
 }
 
 html,
@@ -23,6 +24,7 @@ body {
   margin: 0;
   padding: 0;
   color: var(--color-text);
+  accent-color: var(--color-accent);
 }
 
 main {
@@ -77,18 +79,23 @@ p {
   font-size: 16px;
 }
 
-button,
 .button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   background: none;
   border: 1px solid var(--color-border);
   cursor: pointer;
 
+  text-decoration: none;
+
   &:hover,
   &:focus-visible,
-  &:active,
   &.selection {
     background: var(--color-background);
     outline: 1px solid var(--color-outline);
+    text-decoration: none;
   }
 
   &:disabled {

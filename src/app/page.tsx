@@ -4,6 +4,8 @@ import { StationData, getAllStationsData } from "@/api/stada";
 import { FilterView } from "@/component/filter-view/filter-view";
 import { PageView } from "@/component/page-view/page-view";
 import { DataTable, DataTableRowProps } from "@/component/table/table";
+import { makeParams } from "@/util/params";
+
 import { faCheck, faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -12,29 +14,25 @@ import styles from "./page.module.scss";
 const ITEMS_PER_PAGE = 20;
 
 interface StationProps extends StationData {
-  hasQueryFilter?: boolean;
-  hasStateFilter?: boolean;
-  attributeFilter?: string[];
+  hasQuery: boolean;
+  hasState: boolean;
+  attribute: string[];
 }
 
 interface Filter {
-  filterQuery?: string[];
-  filterStates?: string[];
-  filterAttributes?: string[];
-  filterMode?: "and" | "or";
+  query: string[];
+  states: string[];
+  attributes: string[];
+  mode: "and" | "or";
 }
 
-function applyFilter(
-  filterMode: "and" | "or" | undefined,
-  filterAttributes: string[],
-  item: Record<string, any>,
-) {
+function applyFilter<T>(mode: "and" | "or", attributes: (keyof T)[], item: T) {
   let ok = true;
   let any = false;
-  for (const attribute of filterAttributes) {
+  for (const attribute of attributes) {
     const hasAttribute = item[attribute] === true;
 
-    if (!filterMode || filterMode === "and") {
+    if (mode === "and") {
       if (!hasAttribute) {
         ok = false;
         break;
@@ -43,7 +41,7 @@ function applyFilter(
       continue;
     }
 
-    if (filterMode === "or" && hasAttribute) {
+    if (mode === "or" && hasAttribute) {
       any = true;
       break;
     }
@@ -53,16 +51,14 @@ function applyFilter(
 
 async function getPage(
   index: number,
-  { filterQuery, filterStates, filterAttributes, filterMode }: Filter,
+  { query, states, attributes, mode }: Filter,
 ) {
-  "use server";
-
-  if (!filterAttributes) {
+  if (!attributes.length) {
     const { total, items } = await getAllStationsData({
       limit: ITEMS_PER_PAGE,
       offset: index * ITEMS_PER_PAGE,
-      searchstring: filterQuery,
-      federalstate: filterStates,
+      searchstring: query.length ? query : undefined,
+      federalstate: states.length ? states : undefined,
     });
 
     return {
@@ -74,8 +70,8 @@ async function getPage(
   const { total } = await getAllStationsData({
     limit: 1,
     offset: 0,
-    searchstring: filterQuery,
-    federalstate: filterStates,
+    searchstring: query.length ? query : undefined,
+    federalstate: states.length ? states : undefined,
   });
 
   const filtered: StationData[] = [];
@@ -84,12 +80,12 @@ async function getPage(
     const { items } = await getAllStationsData({
       limit: 100,
       offset: i,
-      searchstring: filterQuery,
-      federalstate: filterStates,
+      searchstring: query.length ? query : undefined,
+      federalstate: states.length ? states : undefined,
     });
 
     for (const item of items) {
-      if (applyFilter(filterMode, filterAttributes, item)) {
+      if (applyFilter(mode, attributes as (keyof StationData)[], item)) {
         filtered.push(item);
       }
     }
@@ -104,21 +100,22 @@ async function getPage(
   };
 }
 
-async function renderPage(
-  elements: StationData[],
-  { filterQuery, filterStates, filterAttributes, filterMode }: Filter,
-) {
-  "use server";
-
+async function Details({
+  elements,
+  extra: { query, states, attributes, mode },
+}: {
+  elements: StationData[];
+  extra: Filter;
+}) {
   const active: (keyof StationProps)[] = [];
-  if (filterQuery) {
+  if (query.length) {
     active.push("name");
   }
-  if (filterStates) {
+  if (states.length) {
     active.push("federalState");
   }
-  if (filterAttributes) {
-    active.push(...(filterAttributes as (keyof StationProps)[]));
+  if (attributes.length) {
+    active.push(...(attributes as (keyof StationProps)[]));
   }
 
   return (
@@ -229,31 +226,34 @@ async function renderPage(
         (element) =>
           ({
             value: {
-              hasQueryFilter: filterQuery !== undefined,
-              hasStateFilter: filterStates !== undefined,
-              attributeFilter: filterAttributes,
+              hasQuery: !!query.length,
+              hasState: !!states.length,
+              attribute: attributes,
               ...element,
             },
             row: {
               href: `/station/${element.number}`,
             },
-          }) as DataTableRowProps<StationProps>,
+          }) satisfies DataTableRowProps<StationProps>,
       )}
       className={styles.stations}
     />
   );
 }
 
-export default async function Page({ searchParams }: PageProps<"/">) {
-  const { query, states, attributes, mode } = await searchParams;
+export default async function Page(props: PageProps<"/">) {
+  const searchParams = await props.searchParams;
+  const params = makeParams(searchParams);
 
-  const filterQuery = (query as string | undefined)
-    ?.split(/\s+/)
-    .map((value) => `*${value}*`);
-  const filterStates = typeof states === "string" ? [states] : states;
-  const filterAttributes =
-    typeof attributes === "string" ? [attributes] : attributes;
-  const filterMode = mode as "and" | "or" | undefined;
+  const query = params.get("query");
+  const querySegments = query
+    ? query.split(/\s+/).map((value) => `*${value}*`)
+    : [];
+  const states = params.getAll("states");
+  const attributes = params.getAll("attributes");
+
+  const mode = params.get("mode") ?? "and";
+  if (mode !== "and" && mode !== "or") return;
 
   return (
     <main>
@@ -261,21 +261,22 @@ export default async function Page({ searchParams }: PageProps<"/">) {
         <h1>DB Viewer</h1>
       </div>
       <FilterView
-        query={query as string | undefined}
-        states={filterStates ?? []}
-        attributes={filterAttributes ?? []}
-        mode={filterMode}
+        query={query}
+        states={states}
+        attributes={attributes}
+        mode={mode}
         className={styles.paging}
       />
       <PageView
-        pageAction={getPage}
-        renderAction={renderPage}
+        getPage={getPage}
+        Page={Details}
         className={styles.paging}
+        searchParams={searchParams}
         extra={{
-          filterQuery,
-          filterStates,
-          filterAttributes,
-          filterMode,
+          query: querySegments,
+          states,
+          attributes,
+          mode,
         }}
       />
     </main>

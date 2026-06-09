@@ -30,7 +30,8 @@ ul.navigation {
   padding: 0;
   margin: 0;
 
-  & button {
+  button,
+  a {
     width: 2.5rem;
     height: 2.5rem;
   }

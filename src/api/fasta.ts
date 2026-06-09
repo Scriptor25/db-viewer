@@ -61,30 +61,31 @@ export interface StationFacilityStatusData {
   facilities?: FacilityStatusData[];
 }
 
-export const getAllFacilitiesStatus = (query?: {
-  type?: FacilityType[];
-  state?: FacilityState[];
-  equipmentnumbers?: number[];
-  stationnumber?: number;
-  area?: [string, string, string, string];
-}): Promise<QueryResult<FacilityStatusData>> =>
-  unstable_cache(async () => {
+export const getAllFacilitiesStatus = unstable_cache(
+  async (
+    query: {
+      type?: FacilityType[];
+      state?: FacilityState[];
+      equipmentnumbers?: number[];
+      stationnumber?: number;
+      area?: [string, string, string, string];
+    } = {},
+  ): Promise<QueryResult<FacilityStatusData>> => {
     const params = new URLSearchParams();
 
-    query
-      && createQuery(params, query, (query, key) => {
-        switch (key) {
-          case "type":
-          case "state":
-            return query[key];
-          case "equipmentnumbers":
-            return query[key]?.map((value) => value.toString(10));
-          case "stationnumber":
-            return query[key]?.toString(10);
-          case "area":
-            return query[key]?.join(",");
-        }
-      });
+    createQuery(params, query, (query, key) => {
+      switch (key) {
+        case "type":
+        case "state":
+          return query[key];
+        case "equipmentnumbers":
+          return query[key]?.map((value) => value.toString(10));
+        case "stationnumber":
+          return query[key]?.toString(10);
+        case "area":
+          return query[key]?.join(",");
+      }
+    });
 
     const result = await fetchJSON<FacilityStatusData[], null>(
       `fasta/v2/facilities?${params}`,
@@ -111,32 +112,31 @@ export const getAllFacilitiesStatus = (query?: {
       total: result.length,
       items: result,
     };
-  }, [JSON.stringify(query)])();
+  },
+);
 
-export const getFacilityStatus = (id: number) =>
-  unstable_cache(async () => {
-    return fetchJSON<FacilityStatusData, null>(
-      `fasta/v2/facilities/${id}`,
-      undefined,
-      async (response) => {
-        if (response.status === 404) {
-          return null;
-        }
-      },
-    );
-  }, [`${id}`])();
+export const getFacilityStatus = unstable_cache((id: number) =>
+  fetchJSON<FacilityStatusData, null>(
+    `fasta/v2/facilities/${id}`,
+    undefined,
+    async (response) => {
+      if (response.status === 404) {
+        return null;
+      }
+    },
+  ),
+);
 
-export const getStationFacilityStatus = (id: number) =>
-  unstable_cache(async () => {
-    return fetchJSON<StationFacilityStatusData, null>(
-      `fasta/v2/stations/${id}`,
-      {
-        next: { revalidate: 3600 },
-      },
-      async (response) => {
-        if (response.status === 404) {
-          return null;
-        }
-      },
-    );
-  }, [`${id}`])();
+export const getStationFacilityStatus = unstable_cache((id: number) =>
+  fetchJSON<StationFacilityStatusData, null>(
+    `fasta/v2/stations/${id}`,
+    {
+      next: { revalidate: 3600 },
+    },
+    async (response) => {
+      if (response.status === 404) {
+        return null;
+      }
+    },
+  ),
+);

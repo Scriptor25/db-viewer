@@ -86,16 +86,16 @@ export interface SCenterData {
   name: string;
   address?: Address;
   /**
-     @deprecated
-     * email adress of the 3-S-Center (no longer supported!)
-     */
+   * @deprecated
+   * email adress of the 3-S-Center (no longer supported!)
+   */
   email?: string;
   internalFaxNumber?: string;
   internalPhoneNumber?: string;
   /**
-     @deprecated
-     * mobile phone number (no longer supported!)
-     */
+   * @deprecated
+   * mobile phone number (no longer supported!)
+   */
   mobilePhoneNumber?: string;
   publicFaxNumber?: string;
   publicPhoneNumber?: string;
@@ -213,9 +213,9 @@ export interface StationData {
      */
     isMain: boolean;
     /**
-         @deprecated
-         * permission for steam engines y/n
-         */
+     * @deprecated
+     * permission for steam engines y/n
+     */
     hasSteamPermission: boolean;
     /**
      * Indicates whether the entry for a steam engine is restricted (eingeschränkt),
@@ -248,82 +248,83 @@ export interface StationData {
   };
 }
 
-export const getAllStationsData = (query?: {
-  /**
-   * The maximum number of hits to be returned by that query. If 'limit' is set greater than 10000, it will be reset
-   * to 10000 internally and only 10000 hits will be returned.
-   */
-  limit?: number;
-  /**
-   * Offset of the first hit returned in the QueryResult object with respect to all hits returned by the query.
-   * If this parameter is omitted, it will be set to 0 internally.
-   */
-  offset?: number;
-  /**
-   * String to search for a station name.
-   * The wildcards * (indicating an arbitrary number of characters) and ? (indicating one single character)
-   * can be used in the search pattern. A comma separated list of station names is also supported
-   * (e.g. searchstring=hamburg*,berlin*).
-   */
-  searchstring?: string | string[];
-  /**
-   * Filter by station category. Category ranges are supported as well as lists of categories
-   * (e.g. category=2-4 or category=1,3-5). The category must be between 1 and 7 otherwise a parameter exception
-   * is returned.
-   */
-  category?: number | string | (number | string)[];
-  /**
-   * Filter by German federal state. Lists of federal states are also supported (e.g. federalstate=bayern,hamburg).
-   * Wildcards are not allowed here.
-   */
-  federalstate?: string | string[];
-  /**
-   * Filter by EVA number. Wildcards are not allowed here.
-   */
-  eva?: number;
-  /**
-   * Filter by Ril100-identifier. Wildcards are not allowed here.
-   */
-  ril?: string;
-  /**
-   * Logical operator to combine query parameters (default=AND). See above for further details.
-   * Allowed values: or, and
-   */
-  logicaloperator?: "or" | "and";
-}): Promise<QueryResult<StationData>> =>
-  unstable_cache(async () => {
+export const getAllStationsData = unstable_cache(
+  async (
+    query: {
+      /**
+       * The maximum number of hits to be returned by that query. If 'limit' is set greater than 10000, it will be reset
+       * to 10000 internally and only 10000 hits will be returned.
+       */
+      limit?: number;
+      /**
+       * Offset of the first hit returned in the QueryResult object with respect to all hits returned by the query.
+       * If this parameter is omitted, it will be set to 0 internally.
+       */
+      offset?: number;
+      /**
+       * String to search for a station name.
+       * The wildcards * (indicating an arbitrary number of characters) and ? (indicating one single character)
+       * can be used in the search pattern. A comma separated list of station names is also supported
+       * (e.g. searchstring=hamburg*,berlin*).
+       */
+      searchstring?: string | string[];
+      /**
+       * Filter by station category. Category ranges are supported as well as lists of categories
+       * (e.g. category=2-4 or category=1,3-5). The category must be between 1 and 7 otherwise a parameter exception
+       * is returned.
+       */
+      category?: number | string | (number | string)[];
+      /**
+       * Filter by German federal state. Lists of federal states are also supported (e.g. federalstate=bayern,hamburg).
+       * Wildcards are not allowed here.
+       */
+      federalstate?: string | string[];
+      /**
+       * Filter by EVA number. Wildcards are not allowed here.
+       */
+      eva?: number;
+      /**
+       * Filter by Ril100-identifier. Wildcards are not allowed here.
+       */
+      ril?: string;
+      /**
+       * Logical operator to combine query parameters (default=AND). See above for further details.
+       * Allowed values: or, and
+       */
+      logicaloperator?: "or" | "and";
+    } = {},
+  ): Promise<QueryResult<StationData>> => {
     const params = new URLSearchParams();
 
-    query
-      && createQuery(params, query, (query, key) => {
-        switch (key) {
-          case "eva":
-          case "limit":
-          case "offset":
-            return query[key]?.toString(10);
+    createQuery(params, query, (query, key) => {
+      switch (key) {
+        case "eva":
+        case "limit":
+        case "offset":
+          return query[key]?.toString(10);
 
-          case "federalstate":
-          case "logicaloperator":
-          case "ril":
-          case "searchstring":
-            return query[key];
+        case "federalstate":
+        case "logicaloperator":
+        case "ril":
+        case "searchstring":
+          return query[key];
 
-          case "category": {
-            const value = query[key];
-            if (value === undefined || typeof value === "string") {
-              return value;
-            }
-
-            if (typeof value === "number") {
-              return value.toString(10);
-            }
-
-            return value.map((item) =>
-              typeof item === "string" ? item : item.toString(10),
-            );
+        case "category": {
+          const value = query[key];
+          if (value === undefined || typeof value === "string") {
+            return value;
           }
+
+          if (typeof value === "number") {
+            return value.toString(10);
+          }
+
+          return value.map((item) =>
+            typeof item === "string" ? item : item.toString(10),
+          );
         }
-      });
+      }
+    });
 
     const result = await fetchJSON<
       {
@@ -359,57 +360,57 @@ export const getAllStationsData = (query?: {
       total: result.total,
       items: result.result,
     };
-  }, [JSON.stringify(query)])();
+  },
+);
 
-export const getStationData = (id: number) =>
-  unstable_cache(async () => {
-    const result = await fetchJSON<
-      {
-        limit: number;
-        offset: number;
-        total: number;
-        result: StationData[];
-      },
-      null
-    >(
-      `station-data/v2/stations/${id}`,
-      {
-        next: { revalidate: 3600 },
-      },
-      async (response) => {
-        if (response.status === 404) {
-          return null;
-        }
-      },
-    );
+export const getStationData = unstable_cache(async (id: number) => {
+  const result = await fetchJSON<
+    {
+      limit: number;
+      offset: number;
+      total: number;
+      result: StationData[];
+    },
+    null
+  >(
+    `station-data/v2/stations/${id}`,
+    {
+      next: { revalidate: 3600 },
+    },
+    async (response) => {
+      if (response.status === 404) {
+        return null;
+      }
+    },
+  );
 
-    if (!result) return null;
+  if (!result) return null;
 
-    return result.result[0];
-  }, [`${id}`])();
+  return result.result[0];
+});
 
-export const getAll3SCentersData = (query?: {
-  /**
-   * The maximum number of hits to be returned by that query. If 'limit' is set greater than 10000,
-   * it will be reset to 10000 internally and only 100 hits will be returned.
-   */
-  limit?: number;
-  /**
-   * Offset of the first hit returned in the QueryResult object with respect to all hits returned by the query.
-   * If this parameter is omitted, it will be set to 0 internally.
-   */
-  offset?: number;
-}): Promise<QueryResult<SCenterData>> =>
-  unstable_cache(async () => {
+export const getAll3SCentersData = unstable_cache(
+  async (
+    query: {
+      /**
+       * The maximum number of hits to be returned by that query. If 'limit' is set greater than 10000,
+       * it will be reset to 10000 internally and only 100 hits will be returned.
+       */
+      limit?: number;
+      /**
+       * Offset of the first hit returned in the QueryResult object with respect to all hits returned by the query.
+       * If this parameter is omitted, it will be set to 0 internally.
+       */
+      offset?: number;
+    } = {},
+  ): Promise<QueryResult<SCenterData>> => {
     const params = new URLSearchParams();
 
-    if (query) {
-      if (query.limit) {
-        params.set("limit", query.limit.toString(10));
-      }
-      if (query.offset) {
-        params.set("offset", query.offset.toString(10));
-      }
+    if (query.limit) {
+      params.set("limit", query.limit.toString(10));
+    }
+    if (query.offset) {
+      params.set("offset", query.offset.toString(10));
     }
 
     const result = await fetchJSON<
@@ -447,33 +448,33 @@ export const getAll3SCentersData = (query?: {
       total: result.total,
       items: result.result,
     };
-  }, [JSON.stringify(query)])();
+  },
+);
 
-export const get3SCenterData = (id: number) =>
-  unstable_cache(async () => {
-    const result = await fetchJSON<
-      {
-        limit: number;
-        offset: number;
-        total: number;
-        result: SCenterData[];
-      },
-      null
-    >(
-      `station-data/v2/szentralen/${id}`,
-      {
-        next: { revalidate: 3600 },
-      },
-      async (response) => {
-        if (response.status === 404) {
-          return null;
-        }
-      },
-    );
+export const get3SCenterData = unstable_cache(async (id: number) => {
+  const result = await fetchJSON<
+    {
+      limit: number;
+      offset: number;
+      total: number;
+      result: SCenterData[];
+    },
+    null
+  >(
+    `station-data/v2/szentralen/${id}`,
+    {
+      next: { revalidate: 3600 },
+    },
+    async (response) => {
+      if (response.status === 404) {
+        return null;
+      }
+    },
+  );
 
-    if (!result) {
-      return null;
-    }
+  if (!result) {
+    return null;
+  }
 
-    return result.result[0];
-  }, [`${id}`])();
+  return result.result[0];
+});

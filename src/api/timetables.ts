@@ -517,42 +517,40 @@ export interface MultipleTimetableStationData {
 /**
  * @param id station eva number
  */
-export const getKnownChanges = (id: number) =>
-  unstable_cache(async () => {
-    const result = await fetchXML<{ timetable: TimetableData }>(
-      `timetables/v1/fchg/${id}`,
-    );
+export const getKnownChanges = unstable_cache(async (id: number) => {
+  const result = await fetchXML<{ timetable: TimetableData }>(
+    `timetables/v1/fchg/${id}`,
+  );
 
-    if (!result) {
-      return null;
-    }
+  if (!result) {
+    return null;
+  }
 
-    return result.timetable;
-  }, [`${id}`])();
+  return result.timetable;
+});
 
 /**
  * @param id station eva number
  */
-export const getRecentChanges = (id: number) =>
-  unstable_cache(async () => {
-    const result = await fetchXML<{ timetable: TimetableData }>(
-      `timetables/v1/rchg/${id}`,
-    );
+export const getRecentChanges = unstable_cache(async (id: number) => {
+  const result = await fetchXML<{ timetable: TimetableData }>(
+    `timetables/v1/rchg/${id}`,
+  );
 
-    if (!result) {
-      return null;
-    }
+  if (!result) {
+    return null;
+  }
 
-    return result.timetable;
-  }, [`${id}`])();
+  return result.timetable;
+});
 
 /**
  * @param id station eva number
  * @param date format YYMMDD
  * @param hour format HH
  */
-export const getPlan = (id: number, date: string, hour: string) =>
-  unstable_cache(async () => {
+export const getPlan = unstable_cache(
+  async (id: number, date: string, hour: string) => {
     const result = await fetchXML<{ timetable: TimetableData }>(
       `timetables/v1/plan/${id}/${date}/${hour}`,
     );
@@ -562,15 +560,14 @@ export const getPlan = (id: number, date: string, hour: string) =>
     }
 
     return result.timetable;
-  }, [`${id}`, date, hour])();
+  },
+);
 
 /**
  * @param pattern station name (prefix), eva number, ds100 / rl100 code, wildcard (*)
  */
-export const getStationsForPattern = (
-  pattern: string,
-): Promise<QueryResult<TimetableStationData>> =>
-  unstable_cache(async () => {
+export const getStationsForPattern = unstable_cache(
+  async (pattern: string): Promise<QueryResult<TimetableStationData>> => {
     const result = await fetchXML<{ stations: MultipleTimetableStationData }>(
       `timetables/v1/station/${pattern}`,
     );
@@ -599,4 +596,5 @@ export const getStationsForPattern = (
       total: 1,
       items: [result.stations.station],
     };
-  }, [pattern])();
+  },
+);

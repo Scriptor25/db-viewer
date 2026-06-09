@@ -63,7 +63,7 @@ export function StationMapView({ station, status }: Readonly<Props>) {
   for (const index in evaNumbers) {
     const eva = evaNumbers[index];
     const ril = rilIdentifiers[index];
-    if (eva.isMain !== ril.isMain) {
+    if (eva?.isMain !== ril?.isMain) {
       continue;
     }
 

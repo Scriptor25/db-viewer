@@ -551,8 +551,14 @@ export const getRecentChanges = unstable_cache(async (id: number) => {
  */
 export const getPlan = unstable_cache(
   async (id: number, date: string, hour: string) => {
-    const result = await fetchXML<{ timetable: TimetableData }>(
+    const result = await fetchXML<{ timetable: TimetableData }, null>(
       `timetables/v1/plan/${id}/${date}/${hour}`,
+      undefined,
+      async (response) => {
+        if (response.status === 404) {
+          return null;
+        }
+      },
     );
 
     if (!result) {

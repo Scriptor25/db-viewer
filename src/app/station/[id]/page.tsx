@@ -1,7 +1,13 @@
 "use server";
 
 import { getStationFacilityStatus } from "@/api/fasta";
-import { Schedule, ScheduleRange, getStationData } from "@/api/stada";
+import { getStationData, Schedule, ScheduleRange } from "@/api/stada";
+import {
+  getKnownChanges,
+  getPlan,
+  getRecentChanges,
+  TimetableData,
+} from "@/api/timetables";
 import { ReturnButton } from "@/component/return-button/return-button";
 import { ServiceDialogProvider } from "@/component/service-dialog/service-dialog-provider";
 import { StationMapView } from "@/component/station-map-view/station-map-view";
@@ -169,6 +175,23 @@ export default async function Page({ params }: PageProps<"/station/[id]">) {
 
   if (!station || !status) {
     notFound();
+  }
+
+  const date = new Date().toDateString();
+  const hour = new Date().getHours().toString(10).padStart(2, "0");
+
+  const knownChanges: TimetableData[] = [];
+  const recentChanges: TimetableData[] = [];
+  const plans: TimetableData[] = [];
+
+  for (const eva of station.evaNumbers) {
+    const kc = await getKnownChanges(eva.number);
+    const rc = await getRecentChanges(eva.number);
+    const plan = await getPlan(eva.number, date, hour);
+
+    if (kc) knownChanges.push(kc);
+    if (rc) recentChanges.push(rc);
+    if (plan) plans.push(plan);
   }
 
   return (
